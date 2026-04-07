@@ -207,7 +207,7 @@ lv_obj_t *zmk_display_status_screen() {
     /* Layer (y 64-84) */
     layer_label = lv_label_create(screen);
     lv_obj_set_width(layer_label, 32);
-    lv_label_set_long_mode(layer_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_long_mode(layer_label, LV_LABEL_LONG_DOT);
     lv_obj_set_style_text_align(layer_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(layer_label, &lv_font_montserrat_12, 0);
     lv_obj_align(layer_label, LV_ALIGN_TOP_MID, 0, 68);
