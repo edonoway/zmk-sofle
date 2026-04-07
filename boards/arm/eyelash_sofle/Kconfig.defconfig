@@ -72,9 +72,6 @@ config I2C
 config SSD1306
     default y
 
-config LV_Z_FULL_REFRESH
-    default y
-
 config LV_FONT_MONTSERRAT_12
     default y
 
@@ -87,7 +84,7 @@ endif
 if SSD1306
 
 config LV_Z_VDB_SIZE
-   default 100
+   default 64
 
 config LV_DPI_DEF
     default 148
