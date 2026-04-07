@@ -52,12 +52,12 @@ static void rot_rounder(lv_disp_drv_t *drv, lv_area_t *area)
 }
 
 /*
- * Rotate the portrait VTILED buffer 90 degrees CW into the SSD1306's
+ * Rotate the portrait VTILED buffer 90 degrees CCW into the SSD1306's
  * landscape VTILED format, then write to hardware.
  *
  * Portrait pixel (px, py) -> Landscape pixel:
- *   col = py              (portrait Y becomes physical column)
- *   row = 31 - px         (portrait X inverted to physical row)
+ *   col = 127 - py        (portrait Y inverted to physical column)
+ *   row = px              (portrait X becomes physical row)
  */
 static void rot_flush(lv_disp_drv_t *drv, const lv_area_t *area,
                       lv_color_t *color_p)
@@ -73,9 +73,9 @@ static void rot_flush(lv_disp_drv_t *drv, const lv_area_t *area,
             uint8_t pixel = (src[px + (py >> 3) * PORT_W] >> (py & 7)) & 1;
 
             if (pixel) {
-                /* Map to landscape VTILED */
-                uint16_t col = py;
-                uint16_t row = (PORT_W - 1) - px;
+                /* Map to landscape VTILED (90 CCW) */
+                uint16_t col = (PORT_H - 1) - py;
+                uint16_t row = px;
                 rot_buf[col + (row >> 3) * PHYS_W] |= (1 << (row & 7));
             }
         }

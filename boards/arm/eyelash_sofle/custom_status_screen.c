@@ -186,66 +186,54 @@ ZMK_SUBSCRIPTION(wpm_wid, zmk_wpm_state_changed);
 
 lv_obj_t *zmk_display_status_screen() {
     lv_obj_t *screen = lv_obj_create(NULL);
+    lv_obj_set_style_pad_all(screen, 0, 0);
 
     /*
-     * Portrait layout (32x128), inspired by user mockup:
+     * Portrait layout (32x128):
      *
-     *  y=0    ⚡ 85%        battery + charge
-     *  y=30   BT1           connection (large)
-     *  y=52   0             layer number (large)
-     *  y=72   BASE          layer name
-     *  y=94   48            WPM (large)
-     *  y=114  wpm           label
+     *  y=0    ⚡ 85%        battery + charge (12px font)
+     *  y=28   BT1           connection (16px font)
+     *  y=50   0             layer number (16px font)
+     *  y=70   BASE          layer name (12px font)
+     *  y=92   48            WPM (16px font)
+     *  y=112  wpm           label (12px font)
      */
 
-    /* Battery - top section */
+    /* Battery - top */
     batt_label = lv_label_create(screen);
-    lv_obj_set_width(batt_label, 32);
-    lv_obj_set_style_text_align(batt_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(batt_label, &lv_font_montserrat_12, 0);
     lv_obj_align(batt_label, LV_ALIGN_TOP_MID, 0, 0);
     batt_wid_init();
 
     /* Connection */
     conn_label = lv_label_create(screen);
-    lv_obj_set_width(conn_label, 32);
-    lv_obj_set_style_text_align(conn_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(conn_label, &lv_font_montserrat_16, 0);
-    lv_obj_align(conn_label, LV_ALIGN_TOP_MID, 0, 30);
+    lv_obj_align(conn_label, LV_ALIGN_TOP_MID, 0, 28);
     conn_wid_init();
 
     /* Layer number (large) */
     layer_num_label = lv_label_create(screen);
-    lv_obj_set_width(layer_num_label, 32);
-    lv_obj_set_style_text_align(layer_num_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(layer_num_label, &lv_font_montserrat_16, 0);
-    lv_obj_align(layer_num_label, LV_ALIGN_TOP_MID, 0, 52);
+    lv_obj_align(layer_num_label, LV_ALIGN_TOP_MID, 0, 50);
 
     /* Layer name */
     layer_name_label = lv_label_create(screen);
-    lv_obj_set_width(layer_name_label, 32);
-    lv_label_set_long_mode(layer_name_label, LV_LABEL_LONG_CLIP);
-    lv_obj_set_style_text_align(layer_name_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(layer_name_label, &lv_font_montserrat_12, 0);
-    lv_obj_align(layer_name_label, LV_ALIGN_TOP_MID, 0, 72);
+    lv_obj_align(layer_name_label, LV_ALIGN_TOP_MID, 0, 70);
 
     layer_wid_init();
 
     /* WPM number (large) */
 #if IS_ENABLED(CONFIG_ZMK_WPM)
     wpm_num_label = lv_label_create(screen);
-    lv_obj_set_width(wpm_num_label, 32);
-    lv_obj_set_style_text_align(wpm_num_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(wpm_num_label, &lv_font_montserrat_16, 0);
-    lv_obj_align(wpm_num_label, LV_ALIGN_TOP_MID, 0, 94);
+    lv_obj_align(wpm_num_label, LV_ALIGN_TOP_MID, 0, 92);
 
     /* "wpm" label */
     wpm_text_label = lv_label_create(screen);
-    lv_obj_set_width(wpm_text_label, 32);
-    lv_obj_set_style_text_align(wpm_text_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_font(wpm_text_label, &lv_font_montserrat_12, 0);
     lv_label_set_text(wpm_text_label, "wpm");
-    lv_obj_align(wpm_text_label, LV_ALIGN_TOP_MID, 0, 114);
+    lv_obj_align(wpm_text_label, LV_ALIGN_TOP_MID, 0, 112);
 
     wpm_wid_init();
 #endif
