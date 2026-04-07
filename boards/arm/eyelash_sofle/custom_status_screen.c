@@ -73,7 +73,7 @@ static void conn_update(struct conn_state state) {
 
 static struct conn_state conn_get_state(const zmk_event_t *eh) {
     return (struct conn_state){
-        .endpoint = zmk_endpoint_get_selected(),
+        .endpoint = zmk_endpoints_selected(),
 #if IS_ENABLED(CONFIG_ZMK_BLE)
         .connected = zmk_ble_active_profile_is_connected(),
 #endif
