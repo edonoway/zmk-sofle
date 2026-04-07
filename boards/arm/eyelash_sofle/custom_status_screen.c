@@ -1,8 +1,6 @@
 /*
- * Custom portrait status screen for Eyelash Sofle
- * Layout for 32x128 (vertically-mounted 128x32 SSD1306 OLED)
- *
- * Requires ssd1306_rotate.c for the 90-degree framebuffer rotation.
+ * Custom status screen for Eyelash Sofle
+ * Layout for 128x32 SSD1306 OLED (landscape)
  *
  * SPDX-License-Identifier: MIT
  */
@@ -35,15 +33,12 @@
 #endif
 
 LV_FONT_DECLARE(lv_font_montserrat_12);
-LV_FONT_DECLARE(lv_font_montserrat_16);
 
 static lv_obj_t *batt_label;
 static lv_obj_t *conn_label;
-static lv_obj_t *layer_num_label;
-static lv_obj_t *layer_name_label;
+static lv_obj_t *layer_label;
 #if IS_ENABLED(CONFIG_ZMK_WPM)
-static lv_obj_t *wpm_num_label;
-static lv_obj_t *wpm_text_label;
+static lv_obj_t *wpm_label;
 #endif
 
 /* ---- Battery Widget ---- */
@@ -58,15 +53,15 @@ static void batt_update(struct batt_state state) {
     if (state.charging) {
         snprintf(text, sizeof(text), LV_SYMBOL_CHARGE " %d%%", state.level);
     } else if (state.level > 95) {
-        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_FULL "\n%d%%", state.level);
+        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_FULL " %d%%", state.level);
     } else if (state.level > 65) {
-        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_3 "\n%d%%", state.level);
+        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_3 " %d%%", state.level);
     } else if (state.level > 35) {
-        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_2 "\n%d%%", state.level);
+        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_2 " %d%%", state.level);
     } else if (state.level > 5) {
-        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_1 "\n%d%%", state.level);
+        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_1 " %d%%", state.level);
     } else {
-        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_EMPTY "\n%d%%", state.level);
+        snprintf(text, sizeof(text), LV_SYMBOL_BATTERY_EMPTY " %d%%", state.level);
     }
     lv_label_set_text(batt_label, text);
 }
@@ -94,17 +89,18 @@ struct conn_state {
 };
 
 static void conn_update(struct conn_state state) {
-    char text[8];
+    char text[16];
     switch (state.endpoint.transport) {
     case ZMK_TRANSPORT_USB:
-        snprintf(text, sizeof(text), "USB");
+        snprintf(text, sizeof(text), LV_SYMBOL_USB " USB");
         break;
     case ZMK_TRANSPORT_BLE:
         if (state.connected) {
-            snprintf(text, sizeof(text), "BT%d",
+            snprintf(text, sizeof(text), LV_SYMBOL_WIFI " BT%d",
                      state.endpoint.ble.profile_index + 1);
         } else {
-            snprintf(text, sizeof(text), "BT?");
+            snprintf(text, sizeof(text), LV_SYMBOL_CLOSE " BT%d",
+                     state.endpoint.ble.profile_index + 1);
         }
         break;
     default:
@@ -139,15 +135,13 @@ struct layer_state {
 };
 
 static void layer_update(struct layer_state state) {
-    char num[4];
-    snprintf(num, sizeof(num), "%d", state.index);
-    lv_label_set_text(layer_num_label, num);
-
+    char text[24];
     if (state.name && state.name[0]) {
-        lv_label_set_text(layer_name_label, state.name);
+        snprintf(text, sizeof(text), "%s", state.name);
     } else {
-        lv_label_set_text(layer_name_label, "---");
+        snprintf(text, sizeof(text), "L%d", state.index);
     }
+    lv_label_set_text(layer_label, text);
 }
 
 static struct layer_state layer_get_state(const zmk_event_t *eh) {
@@ -169,9 +163,9 @@ struct wpm_state {
 };
 
 static void wpm_update(struct wpm_state state) {
-    char text[8];
-    snprintf(text, sizeof(text), "%d", state.wpm);
-    lv_label_set_text(wpm_num_label, text);
+    char text[12];
+    snprintf(text, sizeof(text), "%d wpm", state.wpm);
+    lv_label_set_text(wpm_label, text);
 }
 
 static struct wpm_state wpm_get_state(const zmk_event_t *eh) {
@@ -182,59 +176,40 @@ ZMK_DISPLAY_WIDGET_LISTENER(wpm_wid, struct wpm_state, wpm_update, wpm_get_state
 ZMK_SUBSCRIPTION(wpm_wid, zmk_wpm_state_changed);
 #endif
 
-/* ---- Screen Layout (32 wide x 128 tall) ---- */
+/* ---- Screen Layout (128x32 landscape) ---- */
 
 lv_obj_t *zmk_display_status_screen() {
     lv_obj_t *screen = lv_obj_create(NULL);
-    lv_obj_set_style_pad_all(screen, 0, 0);
 
     /*
-     * Portrait layout (32x128):
-     *
-     *  y=0    ⚡ 85%        battery + charge (12px font)
-     *  y=28   BT1           connection (16px font)
-     *  y=50   0             layer number (16px font)
-     *  y=70   BASE          layer name (12px font)
-     *  y=92   48            WPM (16px font)
-     *  y=112  wpm           label (12px font)
+     * 128x32 layout:
+     * Row 1 (y=0):  [battery icon+%]        [connection]
+     * Row 2 (y=16): [layer name]             [WPM]
      */
 
-    /* Battery - top */
+    /* Battery - top left */
     batt_label = lv_label_create(screen);
     lv_obj_set_style_text_font(batt_label, &lv_font_montserrat_12, 0);
-    lv_obj_align(batt_label, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_align(batt_label, LV_ALIGN_TOP_LEFT, 0, 0);
     batt_wid_init();
 
-    /* Connection */
+    /* Connection - top right */
     conn_label = lv_label_create(screen);
-    lv_obj_set_style_text_font(conn_label, &lv_font_montserrat_16, 0);
-    lv_obj_align(conn_label, LV_ALIGN_TOP_MID, 0, 28);
+    lv_obj_set_style_text_font(conn_label, &lv_font_montserrat_12, 0);
+    lv_obj_align(conn_label, LV_ALIGN_TOP_RIGHT, 0, 0);
     conn_wid_init();
 
-    /* Layer number (large) */
-    layer_num_label = lv_label_create(screen);
-    lv_obj_set_style_text_font(layer_num_label, &lv_font_montserrat_16, 0);
-    lv_obj_align(layer_num_label, LV_ALIGN_TOP_MID, 0, 50);
-
-    /* Layer name */
-    layer_name_label = lv_label_create(screen);
-    lv_obj_set_style_text_font(layer_name_label, &lv_font_montserrat_12, 0);
-    lv_obj_align(layer_name_label, LV_ALIGN_TOP_MID, 0, 70);
-
+    /* Layer - bottom left */
+    layer_label = lv_label_create(screen);
+    lv_obj_set_style_text_font(layer_label, &lv_font_montserrat_12, 0);
+    lv_obj_align(layer_label, LV_ALIGN_BOTTOM_LEFT, 0, 0);
     layer_wid_init();
 
-    /* WPM number (large) */
+    /* WPM - bottom right */
 #if IS_ENABLED(CONFIG_ZMK_WPM)
-    wpm_num_label = lv_label_create(screen);
-    lv_obj_set_style_text_font(wpm_num_label, &lv_font_montserrat_16, 0);
-    lv_obj_align(wpm_num_label, LV_ALIGN_TOP_MID, 0, 92);
-
-    /* "wpm" label */
-    wpm_text_label = lv_label_create(screen);
-    lv_obj_set_style_text_font(wpm_text_label, &lv_font_montserrat_12, 0);
-    lv_label_set_text(wpm_text_label, "wpm");
-    lv_obj_align(wpm_text_label, LV_ALIGN_TOP_MID, 0, 112);
-
+    wpm_label = lv_label_create(screen);
+    lv_obj_set_style_text_font(wpm_label, &lv_font_montserrat_12, 0);
+    lv_obj_align(wpm_label, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
     wpm_wid_init();
 #endif
 

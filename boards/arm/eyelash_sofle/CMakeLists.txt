@@ -1,6 +1,3 @@
-if(CONFIG_ZMK_DISPLAY)
-    target_sources(app PRIVATE ${CMAKE_CURRENT_LIST_DIR}/ssd1306_rotate.c)
-    if(CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM)
-        target_sources(app PRIVATE ${CMAKE_CURRENT_LIST_DIR}/custom_status_screen.c)
-    endif()
+if(CONFIG_ZMK_DISPLAY AND CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM)
+    target_sources(app PRIVATE ${CMAKE_CURRENT_LIST_DIR}/custom_status_screen.c)
 endif()
