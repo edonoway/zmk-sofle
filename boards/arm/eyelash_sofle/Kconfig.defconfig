@@ -84,7 +84,7 @@ endif
 if SSD1306
 
 config LV_Z_VDB_SIZE
-   default 64
+   default 100
 
 config LV_DPI_DEF
     default 148
