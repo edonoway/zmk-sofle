@@ -170,11 +170,11 @@
 
         colemak {
             bindings = <
-&tog 5      &kp N1     &kp N2        &kp N3        &kp N4  &kp N5       &kp UP_ARROW     &kp N6     &kp N7     &kp N8      &kp N9           &kp N0         &kp BACKSPACE
+&tog 5      &kp N1     &kp N2        &kp N3        &kp N4  &kp N5       &kp UP_ARROW     &kp N6     &kp N7     &kp N8      &kp N9           &kp N0         &kp MINUS
 &kp TAB     &kp Q      &kp W         &kp F         &kp P   &kp B        &kp DOWN_ARROW   &kp J      &kp L      &kp U       &kp Y            &kp SEMI       &kp BSLH
-&kp ESC     &kp A      &kp R         &kp S         &kp T   &kp G        &kp LEFT_ARROW   &kp M      &kp N      &kp E       &kp I            &kp O          &kp APOS
+&kp ESC     &kp A      &kp R         &kp S         &kp T   &kp G        &kp LEFT_ARROW   &kp M      &kp N      &kp E       &kp I            &kp O          &kp BACKSPACE
 &kp LSHFT   &kp Z      &kp X         &kp C         &kp D   &kp V        &kp RIGHT_ARROW  &kp K      &kp H      &kp COMMA   &kp DOT          &kp FSLH       &kp ENTER
-&kp C_MUTE  &kp LCTRL  &kp LEFT_GUI  &kp LEFT_ALT  &mo 1   &kp SPACE    &kp ENTER        &kp SPACE  &kp ENTER  &mo 2       &kp RIGHT_SHIFT  &kp DELETE
+&kp C_MUTE  &kp LCTRL  &kp LEFT_ALT  &kp LEFT_GUI  &mo 1   &kp SPACE    &kp ENTER        &kp SPACE  &kp ENTER  &mo 2       &kp RIGHT_SHIFT  &kp DELETE
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOL_DN>;
