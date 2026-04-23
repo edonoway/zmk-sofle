@@ -171,9 +171,9 @@ layers:
   - {t: ;, s: ':'}
   - {t: '$$mdi:backspace$$', type: backspace}
   - {t: '$$mdi:transfer$$', type: trans}
-  - Ctl+`
+  - {t: Ctl+`, s: Ctl+~}
   - Ctl+$$mdi:keyboard-tab$$
-  - Gui+`
+  - {t: Gui+`, s: Gui+~}
   - Gui+$$mdi:keyboard-tab$$
   - Ctl+$$mdi:arrow-up-bold$$
   - {t: '$$mdi:menu-right$$', s: '$$mdi:mouse$$'}
@@ -209,7 +209,7 @@ layers:
   - {t: '$$mdi:transfer$$', type: trans}
   - {t: '$$mdi:transfer$$', type: trans}
   - {t: '$$mdi:transfer$$', type: trans}
-  - Gui+`
+  - {t: Gui+`, s: Gui+~}
   - {t: '1', s: '!'}
   - {t: '2', s: '@'}
   - {t: '3', s: '#'}
@@ -217,7 +217,7 @@ layers:
   - {t: '5', s: '%'}
   - {t: '$$mdi:transfer$$', type: trans}
   - {t: '$$mdi:transfer$$', type: trans}
-  - Ctl+`
+  - {t: Ctl+`, s: Ctl+~}
   - $$mdi:arrow-up-bold$$
   - Ctl+$$mdi:keyboard-tab$$
   - {t: '$$mdi:transfer$$', type: trans}
