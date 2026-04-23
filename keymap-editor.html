@@ -209,15 +209,31 @@ header .subtitle{font-size:11px;color:var(--text-muted);white-space:nowrap;paddi
 
 /* ===== MACRO EDITOR ===== */
 .macro-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-height:50px;padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px}
-.macro-step{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace}
-.macro-step .step-type{font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:3px;min-width:48px;text-align:center}
-.macro-step .step-type.tap{background:rgba(46,213,115,0.15);color:var(--success)}
-.macro-step .step-type.press{background:rgba(108,99,255,0.15);color:var(--accent)}
-.macro-step .step-type.release{background:rgba(255,71,87,0.15);color:var(--danger)}
-.macro-step .step-type.pause{background:rgba(255,165,2,0.15);color:var(--warning)}
-.macro-step .step-keys{flex:1;color:var(--text-secondary)}
-.macro-step .remove-step{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px}
+.macro-step{display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace}
+.macro-step-header{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.macro-step-type-sel{padding:3px 6px;background:var(--bg-input);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-family:inherit;font-size:10px;font-weight:700;text-transform:uppercase}
+.macro-step-type-sel:focus{outline:none;border-color:var(--accent)}
+.macro-step-type-sel.tap{background:rgba(46,213,115,0.15);color:var(--success)}
+.macro-step-type-sel.press{background:rgba(108,99,255,0.15);color:var(--accent)}
+.macro-step-type-sel.release{background:rgba(255,71,87,0.15);color:var(--danger)}
+.macro-step-type-sel.pause_for_release{background:rgba(255,165,2,0.15);color:var(--warning)}
+.macro-step-type-sel.wait_time,.macro-step-type-sel.tap_time{background:rgba(108,99,255,0.12);color:var(--accent)}
+.macro-step-time-input{width:72px;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border);border-radius:3px;color:var(--text-primary);font-family:'JetBrains Mono',monospace;font-size:10px}
+.macro-step-time-input:focus{outline:none;border-color:var(--accent)}
+.macro-step-move{display:flex;flex-direction:column;gap:1px;margin-left:auto}
+.macro-step-move button{background:none;border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-size:9px;padding:0;width:20px;height:12px;line-height:1;border-radius:2px}
+.macro-step-move button:hover{color:var(--text-primary);border-color:var(--accent)}
+.macro-step-move button:disabled{opacity:0.3;cursor:not-allowed}
+.macro-step .remove-step{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 4px;line-height:1}
 .macro-step .remove-step:hover{color:var(--danger)}
+.macro-step-bindings{display:flex;flex-wrap:wrap;gap:4px;padding-left:4px}
+.macro-step-binding{display:inline-flex;align-items:center;gap:3px;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border);border-radius:3px;font-size:10px}
+.macro-step-binding .bind-text{color:var(--text-primary);cursor:pointer;font-family:'JetBrains Mono',monospace}
+.macro-step-binding .bind-text:hover{color:var(--accent)}
+.macro-step-binding .bind-remove{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:11px;padding:0 2px;line-height:1}
+.macro-step-binding .bind-remove:hover{color:var(--danger)}
+.macro-step-add-key{padding:3px 8px;background:transparent;border:1px dashed var(--border);border-radius:3px;color:var(--text-muted);font-size:10px;font-family:inherit;cursor:pointer}
+.macro-step-add-key:hover{color:var(--accent);border-color:var(--accent)}
 .macro-add-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .macro-preview{padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-secondary);white-space:pre-wrap;word-break:break-all;max-height:180px;overflow-y:auto}
 
@@ -319,7 +335,9 @@ header .subtitle{font-size:11px;color:var(--text-muted);white-space:nowrap;paddi
             </div>
             <div class="form-group">
               <label class="form-label">Key</label>
-              <input type="text" class="form-input" id="modComboKey" placeholder="e.g. C, V, Q, SPACE, N4, TAB" oninput="updateModCombo()" style="font-family:'JetBrains Mono',monospace">
+              <input type="text" class="form-input" id="modComboKey" list="modComboKeyList" placeholder="e.g. C, V, Q, SPACE, N4, TAB, GRAVE" oninput="updateModCombo()" style="font-family:'JetBrains Mono',monospace">
+              <datalist id="modComboKeyList"></datalist>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:4px">Type a letter/name or symbol (e.g. <code>\`</code>, <code>-</code>, <code>[</code>) &mdash; it will be converted to a ZMK code automatically.</div>
             </div>
             <div class="form-group">
               <label class="form-label">Preview</label>
@@ -415,7 +433,9 @@ header .subtitle{font-size:11px;color:var(--text-muted);white-space:nowrap;paddi
         <button class="btn btn-sm" onclick="addMacroStep('tap')">+ Tap</button>
         <button class="btn btn-sm" onclick="addMacroStep('press')">+ Press</button>
         <button class="btn btn-sm" onclick="addMacroStep('release')">+ Release</button>
-        <button class="btn btn-sm" onclick="addMacroStep('pause')">+ Pause</button>
+        <button class="btn btn-sm" onclick="addMacroStep('pause_for_release')">+ Pause for Release</button>
+        <button class="btn btn-sm" onclick="addMacroStep('wait_time')">+ Wait Time</button>
+        <button class="btn btn-sm" onclick="addMacroStep('tap_time')">+ Tap Time</button>
       </div>
       <div class="form-group">
         <label class="form-label">ZMK Preview</label>
@@ -459,6 +479,94 @@ const state = {
 
 const ROW_LENGTHS = [13, 13, 13, 13, 12];
 const TOTAL_KEYS = 64;
+
+// ======================================================================
+// CHARACTER -> ZMK KEYCODE MAP
+// ======================================================================
+// Used when converting literal characters typed by the user (e.g. in the
+// mod-combo key field) into a valid ZMK keycode name. Literal characters
+// like `\`` cause devicetree parse errors when placed inside LC(), LG() etc.
+const CHAR_TO_ZMK = {
+  '`':'GRAVE','~':'TILDE',
+  '!':'EXCL','@':'AT','#':'HASH','$':'DLLR','%':'PRCNT',
+  '^':'CARET','&':'AMPS','*':'STAR','(':'LPAR',')':'RPAR',
+  '-':'MINUS','_':'UNDER','=':'EQUAL','+':'PLUS',
+  '[':'LBKT',']':'RBKT','{':'LBRC','}':'RBRC',
+  '\\':'BSLH','|':'PIPE',
+  ';':'SEMI',':':'COLON',
+  "'":'APOS','"':'DQT',
+  ',':'COMMA','.':'DOT','/':'FSLH','?':'QMARK',
+  '<':'LT','>':'GT',
+  ' ':'SPACE',
+};
+// Valid ZMK keycode names for simple keys (uppercase). Matched directly if
+// user typed the name.
+const ZMK_KEYCODE_SET = new Set([
+  'A','B','C','D','E','F','G','H','I','J','K','L','M',
+  'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+  'N0','N1','N2','N3','N4','N5','N6','N7','N8','N9',
+  'GRAVE','TILDE','EXCL','AT','HASH','DLLR','PRCNT','CARET','AMPS','STAR',
+  'LPAR','RPAR','MINUS','UNDER','EQUAL','PLUS','LBKT','RBKT','LBRC','RBRC',
+  'BSLH','PIPE','SEMI','COLON','APOS','SQT','DQT','COMMA','DOT','FSLH','QMARK','LT','GT',
+  'SPACE','TAB','ENTER','RET','RETURN','ESC','ESCAPE','BSPC','BACKSPACE','DEL','DELETE','INS','INSERT',
+  'CAPS','CAPSLOCK','HOME','END','PG_UP','PG_DN','PAGE_UP','PAGE_DOWN',
+  'UP','DOWN','LEFT','RIGHT','UP_ARROW','DOWN_ARROW','LEFT_ARROW','RIGHT_ARROW',
+  'LSHFT','RSHFT','LCTRL','RCTRL','LALT','RALT','LGUI','RGUI',
+  'LEFT_SHIFT','RIGHT_SHIFT','LEFT_CONTROL','RIGHT_CONTROL',
+  'LEFT_ALT','RIGHT_ALT','LEFT_GUI','RIGHT_GUI',
+  'PSCRN','SLCK','PAUSE_BREAK','GLOBE',
+]);
+for (let i = 1; i <= 24; i++) ZMK_KEYCODE_SET.add('F' + i);
+
+// Convert an arbitrary "inner key" string (possibly a single literal char,
+// a lowercase name, or already a valid ZMK code) to a valid ZMK keycode
+// name, or return null if unknown.
+function normalizeInnerKey(raw) {
+  if (!raw) return null;
+  let s = String(raw).trim();
+  if (!s) return null;
+  // Single literal char (e.g. `, -, [, ', etc.)
+  if (s.length === 1 && CHAR_TO_ZMK[s]) return CHAR_TO_ZMK[s];
+  // Uppercase letter or digit stays as-is (digits map to Nx)
+  if (s.length === 1) {
+    if (/^[A-Za-z]$/.test(s)) return s.toUpperCase();
+    if (/^[0-9]$/.test(s)) return 'N' + s;
+    if (CHAR_TO_ZMK[s]) return CHAR_TO_ZMK[s];
+  }
+  // Uppercased name match
+  const upper = s.toUpperCase();
+  if (ZMK_KEYCODE_SET.has(upper)) return upper;
+  // A nested mod-combo expression like LS(LG(N3)) — leave as-is if it
+  // parses as a known modifier pattern.
+  if (/^[LR][GCSA]\(.+\)$/.test(upper)) {
+    // Recurse on the inner portion.
+    const m = upper.match(/^([LR][GCSA])\((.+)\)$/);
+    if (m) {
+      const inner = normalizeInnerKey(m[2]);
+      return inner ? `${m[1]}(${inner})` : null;
+    }
+  }
+  // Otherwise fall through — may already be a valid keycode we don't know.
+  // Return uppercased so we at least avoid literal lowercase identifiers.
+  return upper;
+}
+
+// Normalize every literal character occurrence inside a mod-combo string like
+// `LC(\`)` -> `LC(GRAVE)`.  Repeatedly walks inside-out.
+function normalizeModComboString(combo) {
+  if (!combo) return combo;
+  // Match innermost paren groups and normalize their contents.
+  let prev;
+  let cur = combo;
+  do {
+    prev = cur;
+    cur = cur.replace(/([LR][GCSA])\(([^()]+)\)/g, function(_, mod, inner) {
+      const norm = normalizeInnerKey(inner.trim());
+      return `${mod}(${norm || inner.trim()})`;
+    });
+  } while (cur !== prev);
+  return cur;
+}
 
 // ======================================================================
 // BINDING DATABASE
@@ -909,6 +1017,14 @@ function clearSelectedKey() {
 function assignBinding(code) {
   if (state.selectedKey === null) { toast('Select a key first','info'); return; }
   code = code.replace(/\\'/g, "'");
+  // Defensive: if this is a &kp mod-combo (e.g. `&kp LC(\`)`), normalize
+  // any literal special characters inside to ZMK keycode names.
+  if (code.startsWith('&kp ')) {
+    const inner = code.substring(4);
+    if (/[LR][GCSA]\(/.test(inner)) {
+      code = '&kp ' + normalizeModComboString(inner);
+    }
+  }
   state.layers[state.activeLayer].bindings[state.selectedKey] = code;
   // Advance to next key
   if (state.selectedKey + 1 < TOTAL_KEYS) state.selectedKey++;
@@ -961,9 +1077,13 @@ function updateModCombo() {
   if (document.getElementById('modRC').checked) mods.push('RC');
   if (document.getElementById('modRA').checked) mods.push('RA');
   if (document.getElementById('modRS').checked) mods.push('RS');
-  const key = document.getElementById('modComboKey').value.trim().toUpperCase();
+  const rawKey = document.getElementById('modComboKey').value.trim();
   const preview = document.getElementById('modComboPreview');
-  if (!key || !mods.length) { preview.textContent = 'Select modifiers and a key'; preview.style.color = 'var(--text-muted)'; return; }
+  if (!rawKey || !mods.length) { preview.textContent = 'Select modifiers and a key'; preview.style.color = 'var(--text-muted)'; return; }
+  // Convert whatever the user typed (single char, lowercase name, bare name)
+  // into a valid ZMK keycode name so the export never contains literal
+  // special characters (which would break the devicetree parser).
+  const key = normalizeInnerKey(rawKey) || rawKey.toUpperCase();
   let combo = key;
   for (let i = mods.length - 1; i >= 0; i--) combo = `${mods[i]}(${combo})`;
   preview.textContent = `&kp ${combo}`;
@@ -974,22 +1094,74 @@ function applyModCombo() {
   const p = document.getElementById('modComboPreview').textContent;
   if (!p.startsWith('&kp ')) { toast('Build a combo first','info'); return; }
   if (state.selectedKey === null) { toast('Select a key first','info'); return; }
-  state.layers[state.activeLayer].bindings[state.selectedKey] = p;
+  // Normalize in case any literal chars slipped through.
+  const normalized = '&kp ' + normalizeModComboString(p.substring(4));
+  state.layers[state.activeLayer].bindings[state.selectedKey] = normalized;
   renderKeyboard(); updateKeyInfoBar();
   toast('Modifier combo applied','success');
 }
 
 function quickModCombo(combo) {
   if (state.selectedKey === null) { toast('Select a key first','info'); return; }
-  state.layers[state.activeLayer].bindings[state.selectedKey] = `&kp ${combo}`;
+  const normalized = normalizeModComboString(combo);
+  state.layers[state.activeLayer].bindings[state.selectedKey] = `&kp ${normalized}`;
   renderKeyboard(); updateKeyInfoBar();
-  toast(`Applied &kp ${combo}`,'success');
+  toast(`Applied &kp ${normalized}`,'success');
 }
 
 // ======================================================================
 // MACRO EDITOR
 // ======================================================================
-let pendingStepType = null;
+// Step data model (post-rewrite):
+//   { type: 'tap'|'press'|'release'|'pause_for_release'|'wait_time'|'tap_time',
+//     bindings: ['&kp LSHFT', '&kp LGUI', ...],   // for tap/press/release
+//     value: 100 }                                  // for wait_time/tap_time
+// The legacy model stored `keys: [...]` (either bare "LSHFT" or "&mkp MB3")
+// and used type 'pause' for pause_for_release. `migrateStep` upgrades it.
+let pendingStepContext = null; // { mode:'new'|'append', type?, stepIndex? }
+
+const MACRO_STEP_TYPES = [
+  { value: 'tap',               label: 'Tap' },
+  { value: 'press',             label: 'Press' },
+  { value: 'release',           label: 'Release' },
+  { value: 'pause_for_release', label: 'Pause for Release' },
+  { value: 'wait_time',         label: 'Wait Time (ms)' },
+  { value: 'tap_time',          label: 'Tap Time (ms)' },
+];
+
+function stepHasBindings(type) {
+  return type === 'tap' || type === 'press' || type === 'release';
+}
+function stepHasValue(type) {
+  return type === 'wait_time' || type === 'tap_time';
+}
+
+// Upgrade a legacy-format step (with `keys: [...]`, type:'pause') in-place.
+function migrateStep(s) {
+  if (!s || typeof s !== 'object') return { type:'tap', bindings:[] };
+  if (s.type === 'pause') s.type = 'pause_for_release';
+  if (!s.bindings) {
+    const bindings = [];
+    if (Array.isArray(s.keys)) {
+      for (const k of s.keys) {
+        if (typeof k !== 'string') continue;
+        const t = k.trim();
+        if (!t) continue;
+        if (t.startsWith('&')) bindings.push(t);
+        else bindings.push('&kp ' + t);
+      }
+    }
+    s.bindings = bindings;
+    delete s.keys;
+  }
+  if (stepHasValue(s.type) && (s.value === undefined || s.value === null)) {
+    s.value = s.type === 'wait_time' ? 100 : 50;
+  }
+  return s;
+}
+function migrateMacroSteps(steps) {
+  return (steps || []).map(migrateStep);
+}
 
 function openMacroEditor(idx = -1) {
   state.editingMacroIndex = idx;
@@ -1006,7 +1178,7 @@ function openMacroEditor(idx = -1) {
     document.getElementById('macroLabelInput').value = m.label || '';
     document.getElementById('macroWaitMs').value = m.waitMs || 30;
     document.getElementById('macroTapMs').value = m.tapMs || 40;
-    state.currentMacroSteps = JSON.parse(JSON.stringify(m.steps || []));
+    state.currentMacroSteps = migrateMacroSteps(JSON.parse(JSON.stringify(m.steps || [])));
     document.getElementById('macroDeleteBtn').style.display = '';
     document.getElementById('macroModalTitle').textContent = 'Edit Macro';
   }
@@ -1021,43 +1193,120 @@ function closeMacroEditor() {
 }
 
 function addMacroStep(type) {
-  if (type === 'pause') {
-    state.currentMacroSteps.push({ type: 'pause' });
-    renderMacroSteps(); updateMacroPreview(); return;
+  // pause_for_release has no bindings; wait_time/tap_time take a numeric value.
+  if (!stepHasBindings(type)) {
+    const step = { type, bindings: [] };
+    if (stepHasValue(type)) step.value = type === 'wait_time' ? 100 : 50;
+    state.currentMacroSteps.push(step);
+    renderMacroSteps(); updateMacroPreview();
+    return;
   }
-  pendingStepType = type;
+  // For tap/press/release, open the picker, then create the step on selection.
+  pendingStepContext = { mode: 'new', type };
+  openStepKeyPicker();
+}
+
+function openStepKeyPicker() {
   document.getElementById('stepKeyModal').classList.remove('hidden');
   document.getElementById('stepKeySearch').value = '';
   renderStepKeyList('');
 }
 
-function closeStepKeyPicker() { document.getElementById('stepKeyModal').classList.add('hidden'); pendingStepType = null; }
+function closeStepKeyPicker() { document.getElementById('stepKeyModal').classList.add('hidden'); pendingStepContext = null; }
 
 function renderStepKeyList(q) {
   q = q.toLowerCase().trim();
-  const keys = [];
-  ['Letters','Numbers','Modifiers','Symbols','Function Keys','Navigation','Editing'].forEach(cat => {
-    (BINDINGS[cat]||[]).forEach(b => {
-      if (b.code.startsWith('&kp ')) keys.push({ code: b.code.substring(4), label: b.label });
+  // Build a flat list of bindings usable inside a macro step.
+  const items = [];
+  ['Letters','Numbers','Modifiers','Symbols','Function Keys','Navigation','Editing','Media'].forEach(cat => {
+    (BINDINGS[cat] || []).forEach(b => {
+      if (b.code.startsWith('&kp ')) items.push({ code: b.code, label: b.label, display: b.code.substring(4) });
     });
   });
-  // Add mouse keys
-  BINDINGS['Mouse'].filter(b => b.code.startsWith('&mkp ')).forEach(b => keys.push({ code: b.code, label: b.label, full: true }));
+  // Mouse click buttons.
+  (BINDINGS['Mouse'] || []).filter(b => b.code.startsWith('&mkp ')).forEach(b => {
+    items.push({ code: b.code, label: b.label, display: b.code });
+  });
 
   let h = '';
-  for (const k of keys) {
-    if (q && !k.code.toLowerCase().includes(q) && !k.label.toLowerCase().includes(q)) continue;
-    const display = k.full ? k.code : k.code;
-    h += `<div class="binding-item" onclick="pickStepKey('${escAttr(k.full ? k.code : k.code)}')">${esc(k.label)} <span style="color:var(--text-muted);font-size:8px">${esc(k.code)}</span></div>`;
+  for (const k of items) {
+    const hay = (k.code + ' ' + k.label + ' ' + k.display).toLowerCase();
+    if (q && !hay.includes(q)) continue;
+    h += `<div class="binding-item" onclick="pickStepKey('${escAttr(k.code)}')">${esc(k.label)} <span style="color:var(--text-muted);font-size:8px">${esc(k.display)}</span></div>`;
   }
+  if (!h) h = '<div style="color:var(--text-muted);font-size:11px;padding:10px">No matches</div>';
   document.getElementById('stepKeyList').innerHTML = h;
 }
 
 function filterStepKeys(q) { renderStepKeyList(q); }
 
-function pickStepKey(keyCode) {
-  state.currentMacroSteps.push({ type: pendingStepType, keys: [keyCode] });
+// `code` is a full binding like '&kp A' or '&mkp MCLK'.
+function pickStepKey(code) {
+  const ctx = pendingStepContext;
+  if (!ctx) { closeStepKeyPicker(); return; }
+  if (ctx.mode === 'new') {
+    state.currentMacroSteps.push({ type: ctx.type, bindings: [code] });
+  } else if (ctx.mode === 'append') {
+    const s = state.currentMacroSteps[ctx.stepIndex];
+    if (s) { if (!s.bindings) s.bindings = []; s.bindings.push(code); }
+  } else if (ctx.mode === 'replace') {
+    const s = state.currentMacroSteps[ctx.stepIndex];
+    if (s && s.bindings && ctx.bindingIndex >= 0 && ctx.bindingIndex < s.bindings.length) {
+      s.bindings[ctx.bindingIndex] = code;
+    }
+  }
   closeStepKeyPicker();
+  renderMacroSteps(); updateMacroPreview();
+}
+
+function addBindingToStep(i) {
+  const s = state.currentMacroSteps[i];
+  if (!s || !stepHasBindings(s.type)) return;
+  pendingStepContext = { mode: 'append', stepIndex: i };
+  openStepKeyPicker();
+}
+
+function editStepBinding(stepIdx, bindIdx) {
+  const s = state.currentMacroSteps[stepIdx];
+  if (!s || !s.bindings || bindIdx < 0 || bindIdx >= s.bindings.length) return;
+  pendingStepContext = { mode: 'replace', stepIndex: stepIdx, bindingIndex: bindIdx };
+  openStepKeyPicker();
+}
+
+function removeBindingFromStep(stepIdx, bindIdx) {
+  const s = state.currentMacroSteps[stepIdx];
+  if (!s || !s.bindings) return;
+  s.bindings.splice(bindIdx, 1);
+  renderMacroSteps(); updateMacroPreview();
+}
+
+function changeStepType(i, newType) {
+  const s = state.currentMacroSteps[i];
+  if (!s) return;
+  s.type = newType;
+  if (!stepHasBindings(newType)) s.bindings = [];
+  else if (!s.bindings) s.bindings = [];
+  if (stepHasValue(newType)) {
+    if (s.value === undefined || s.value === null) s.value = newType === 'wait_time' ? 100 : 50;
+  } else {
+    delete s.value;
+  }
+  renderMacroSteps(); updateMacroPreview();
+}
+
+function changeStepValue(i, val) {
+  const s = state.currentMacroSteps[i];
+  if (!s) return;
+  const n = parseInt(val, 10);
+  s.value = isNaN(n) ? 0 : n;
+  updateMacroPreview();
+}
+
+function moveStep(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= state.currentMacroSteps.length) return;
+  const arr = state.currentMacroSteps;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
   renderMacroSteps(); updateMacroPreview();
 }
 
@@ -1065,29 +1314,64 @@ function removeMacroStep(i) { state.currentMacroSteps.splice(i, 1); renderMacroS
 
 function renderMacroSteps() {
   const c = document.getElementById('macroSteps');
-  if (!state.currentMacroSteps.length) { c.innerHTML = '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:10px">No steps added yet</div>'; return; }
+  if (!state.currentMacroSteps.length) {
+    c.innerHTML = '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:10px">No steps added yet</div>';
+    return;
+  }
+  const typeOptions = MACRO_STEP_TYPES.map(t => `<option value="${t.value}">${esc(t.label)}</option>`).join('');
   let h = '';
   state.currentMacroSteps.forEach((s, i) => {
-    const keys = s.type === 'pause' ? 'pause for release' : (s.keys || []).join(', ');
-    h += `<div class="macro-step"><span class="step-type ${s.type}">${s.type}</span><span class="step-keys">${esc(keys)}</span><button class="remove-step" onclick="removeMacroStep(${i})">&times;</button></div>`;
+    const type = s.type;
+    const selectHtml = `<select class="macro-step-type-sel ${type}" onchange="changeStepType(${i}, this.value)">${
+      MACRO_STEP_TYPES.map(t => `<option value="${t.value}"${t.value===type?' selected':''}>${esc(t.label)}</option>`).join('')
+    }</select>`;
+    const upDisabled = i === 0 ? 'disabled' : '';
+    const downDisabled = i === state.currentMacroSteps.length - 1 ? 'disabled' : '';
+    const controls = `<div class="macro-step-move"><button onclick="moveStep(${i},-1)" ${upDisabled} title="Move up">▲</button><button onclick="moveStep(${i},1)" ${downDisabled} title="Move down">▼</button></div><button class="remove-step" onclick="removeMacroStep(${i})" title="Remove step">&times;</button>`;
+
+    let bodyHtml = '';
+    if (stepHasBindings(type)) {
+      const pills = (s.bindings || []).map((b, bi) =>
+        `<span class="macro-step-binding"><span class="bind-text" onclick="editStepBinding(${i},${bi})" title="Click to change">${esc(b)}</span><button class="bind-remove" onclick="removeBindingFromStep(${i},${bi})" title="Remove">&times;</button></span>`
+      ).join('');
+      bodyHtml = `<div class="macro-step-bindings">${pills}<button class="macro-step-add-key" onclick="addBindingToStep(${i})">+ Add key</button></div>`;
+    } else if (stepHasValue(type)) {
+      const val = (s.value === undefined || s.value === null) ? (type === 'wait_time' ? 100 : 50) : s.value;
+      bodyHtml = `<div class="macro-step-bindings"><input type="number" class="macro-step-time-input" min="0" value="${val}" onchange="changeStepValue(${i}, this.value)" oninput="changeStepValue(${i}, this.value)"><span style="color:var(--text-muted);font-size:10px">ms</span></div>`;
+    } else {
+      // pause_for_release — nothing to edit.
+      bodyHtml = `<div class="macro-step-bindings"><span style="color:var(--text-muted);font-size:10px">waits for macro key release</span></div>`;
+    }
+
+    h += `<div class="macro-step"><div class="macro-step-header">${selectHtml}${controls}</div>${bodyHtml}</div>`;
   });
   c.innerHTML = h;
+}
+
+// Render a single <&macro_X ...> block for one step.
+function renderStepBlock(s) {
+  const type = s.type;
+  if (type === 'tap' || type === 'press' || type === 'release') {
+    const inner = ['&macro_' + type].concat(s.bindings || []);
+    return '<' + inner.join(' ') + '>';
+  }
+  if (type === 'pause_for_release') return '<&macro_pause_for_release>';
+  if (type === 'wait_time') return `<&macro_wait_time ${parseInt(s.value, 10) || 0}>`;
+  if (type === 'tap_time')  return `<&macro_tap_time ${parseInt(s.value, 10) || 0}>`;
+  return null;
 }
 
 function updateMacroPreview() {
   const name = document.getElementById('macroNameInput').value || 'my_macro';
   const label = document.getElementById('macroLabelInput').value || name.toUpperCase();
-  const waitMs = document.getElementById('macroWaitMs').value || '30';
-  const tapMs = document.getElementById('macroTapMs').value || '40';
   const parts = [];
   for (const s of state.currentMacroSteps) {
-    if (s.type === 'tap') { parts.push('<&macro_tap>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
-    else if (s.type === 'press') { parts.push('<&macro_press>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
-    else if (s.type === 'release') { parts.push('<&macro_release>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
-    else if (s.type === 'pause') { parts.push('<&macro_pause_for_release>'); }
+    const blk = renderStepBlock(s);
+    if (blk) parts.push(blk);
   }
   let code = `${name}: ${name} {\n    compatible = "zmk,behavior-macro";\n    #binding-cells = <0>;\n`;
   if (parts.length) code += `    bindings\n        = ${parts.join(',\n        ')};\n`;
+  else code += `    bindings = <>;\n`;
   code += `    label = "${label}";\n};`;
   document.getElementById('macroPreview').textContent = code;
 }
@@ -1112,19 +1396,63 @@ function deleteMacroByIndex(i) {
   render(); toast('Macro deleted','info');
 }
 
+// Pre-built macro templates. Each step uses the new data model with full
+// binding strings (e.g. '&kp LSHFT', '&mkp MCLK') so they export correctly.
+const MACRO_TEMPLATES = {
+  screenshot: {
+    name: 'screenshot', label: 'SCREENSHOT', waitMs: 30, tapMs: 40,
+    steps: [
+      { type: 'press',   bindings: ['&kp LSHFT', '&kp LGUI', '&kp LCTRL'] },
+      { type: 'tap',     bindings: ['&kp N4'] },
+      { type: 'release', bindings: ['&kp LSHFT', '&kp LGUI', '&kp LCTRL'] },
+    ],
+  },
+  lock_screen: {
+    name: 'lock_screen', label: 'LOCK_SCREEN', waitMs: 30, tapMs: 40,
+    steps: [
+      { type: 'press',   bindings: ['&kp LGUI', '&kp LCTRL'] },
+      { type: 'tap',     bindings: ['&kp Q'] },
+      { type: 'release', bindings: ['&kp LGUI', '&kp LCTRL'] },
+    ],
+  },
+  del_word: {
+    name: 'del_word', label: 'DEL_WORD', waitMs: 30, tapMs: 40,
+    steps: [
+      { type: 'press',   bindings: ['&kp LALT'] },
+      { type: 'tap',     bindings: ['&kp BACKSPACE'] },
+      { type: 'release', bindings: ['&kp LALT'] },
+    ],
+  },
+  del_line: {
+    name: 'del_line', label: 'DEL_LINE', waitMs: 30, tapMs: 40,
+    steps: [
+      { type: 'press',   bindings: ['&kp LGUI'] },
+      { type: 'tap',     bindings: ['&kp BACKSPACE'] },
+      { type: 'release', bindings: ['&kp LGUI'] },
+    ],
+  },
+  shift_mclk: {
+    name: 'SHIFT_MCLK', label: 'SHIFT_MCLK', waitMs: 30, tapMs: 40,
+    steps: [
+      { type: 'press',             bindings: ['&kp LSHFT'] },
+      { type: 'press',             bindings: ['&mkp MCLK'] },
+      { type: 'pause_for_release', bindings: [] },
+      { type: 'release',           bindings: ['&kp LSHFT'] },
+      { type: 'release',           bindings: ['&mkp MCLK'] },
+    ],
+  },
+};
+
 function loadMacroTemplate(t) {
-  const templates = {
-    screenshot: { name:'screenshot', label:'SCREENSHOT', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LSHFT','LGUI','LCTRL']},{type:'tap',keys:['N4']},{type:'release',keys:['LSHFT','LGUI','LCTRL']}] },
-    del_word: { name:'del_word', label:'DEL_WORD', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LALT']},{type:'tap',keys:['BACKSPACE']},{type:'release',keys:['LALT']}] },
-    del_line: { name:'del_line', label:'DEL_LINE', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LGUI']},{type:'tap',keys:['BACKSPACE']},{type:'release',keys:['LGUI']}] },
-    lock_screen: { name:'lock_screen', label:'LOCK_SCREEN', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LGUI','LCTRL']},{type:'tap',keys:['Q']},{type:'release',keys:['LGUI','LCTRL']}] },
-    shift_mclk: { name:'SHIFT_MCLK', label:'SHIFT_MCLK', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LEFT_SHIFT']},{type:'press',keys:['&mkp MB3']},{type:'pause'},{type:'release',keys:['LEFT_SHIFT','&mkp MB3']}] },
-  };
-  const tpl = templates[t];
+  const tpl = MACRO_TEMPLATES[t];
   if (!tpl) return;
   if (state.macros.some(m => m.name === tpl.name)) { toast(`"${tpl.name}" already exists`,'info'); return; }
-  state.macros.push(JSON.parse(JSON.stringify(tpl)));
+  const copy = JSON.parse(JSON.stringify(tpl));
+  state.macros.push(copy);
   renderMacroList();
+  // Open the macro editor pre-populated with the template so the user can
+  // tweak it and immediately see the generated ZMK output.
+  openMacroEditor(state.macros.length - 1);
   toast(`"${tpl.name}" created`,'success');
 }
 
@@ -1217,12 +1545,13 @@ function genMacroCode(m) {
   let c = `        ${m.name}: ${m.name} {\n`;
   c += `            compatible = "zmk,behavior-macro";\n`;
   c += `            #binding-cells = <0>;\n`;
+  // Steps may still be in the legacy {type,keys:[]} shape (e.g. from an
+  // older autosave or an unedited template load) — migrate on the fly.
+  const steps = (m.steps || []).map(s => migrateStep(JSON.parse(JSON.stringify(s))));
   const parts = [];
-  for (const s of m.steps) {
-    if (s.type === 'tap') { parts.push('<&macro_tap>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
-    else if (s.type === 'press') { parts.push('<&macro_press>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
-    else if (s.type === 'release') { parts.push('<&macro_release>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
-    else if (s.type === 'pause') { parts.push('<&macro_pause_for_release>'); }
+  for (const s of steps) {
+    const blk = renderStepBlock(s);
+    if (blk) parts.push(blk);
   }
   if (parts.length) c += `            bindings\n                = ${parts.join(',\n                ')};\n`;
   else c += `            bindings = <>;\n`;
@@ -1274,23 +1603,10 @@ function parseKeymap(text) {
         const bRe = /<([^>]+)>/g;
         let bm;
         while ((bm = bRe.exec(bindM[1])) !== null) blocks.push(bm[1].trim());
-        let curType = null, curKeys = [];
         for (const block of blocks) {
-          if (block === '&macro_tap') { if (curType && curKeys.length) steps.push({type:curType,keys:[...curKeys]}); curType='tap'; curKeys=[]; }
-          else if (block === '&macro_press') { if (curType && curKeys.length) steps.push({type:curType,keys:[...curKeys]}); curType='press'; curKeys=[]; }
-          else if (block === '&macro_release') { if (curType && curKeys.length) steps.push({type:curType,keys:[...curKeys]}); curType='release'; curKeys=[]; }
-          else if (block === '&macro_pause_for_release') { if (curType && curKeys.length) { steps.push({type:curType,keys:[...curKeys]}); curKeys=[]; } steps.push({type:'pause'}); curType=null; }
-          else {
-            const keyParts = block.split(/\s+&/).map((p,i) => i===0 ? p : '&'+p);
-            for (const kp of keyParts) {
-              const t = kp.trim();
-              if (t.startsWith('&kp ')) curKeys.push(t.substring(4));
-              else if (t.startsWith('&mkp ')) curKeys.push(t);
-              else curKeys.push(t);
-            }
-          }
+          const parsed = parseMacroStepBlock(block);
+          if (parsed) steps.push(parsed);
         }
-        if (curType && curKeys.length) steps.push({type:curType,keys:[...curKeys]});
       }
       state.macros.push({ name, label, waitMs: waitM?parseInt(waitM[1]):30, tapMs: tapM?parseInt(tapM[1]):40, steps });
     }
@@ -1317,6 +1633,49 @@ function parseKeymap(text) {
   }
   if (!state.layers.length) throw new Error('No layers found');
   render();
+}
+
+// Parse the contents of a single <...> macro-step block into a step object.
+// Handles both single-binding and multi-binding blocks:
+//   "&macro_press &kp LSHFT &kp LGUI"  -> {type:'press', bindings:['&kp LSHFT','&kp LGUI']}
+//   "&macro_tap &kp N4"                -> {type:'tap',   bindings:['&kp N4']}
+//   "&macro_pause_for_release"         -> {type:'pause_for_release', bindings:[]}
+//   "&macro_wait_time 100"             -> {type:'wait_time', value:100, bindings:[]}
+//   "&macro_tap_time 50"               -> {type:'tap_time',  value:50,  bindings:[]}
+function parseMacroStepBlock(block) {
+  const s = block.trim();
+  if (!s) return null;
+  // Match the leading &macro_... control token.
+  const ctlM = s.match(/^&macro_(tap|press|release|pause_for_release|wait_time|tap_time)\b\s*([\s\S]*)$/);
+  if (!ctlM) return null;
+  const type = ctlM[1];
+  const rest = ctlM[2].trim();
+  if (type === 'pause_for_release') return { type, bindings: [] };
+  if (type === 'wait_time' || type === 'tap_time') {
+    const n = parseInt(rest, 10);
+    return { type, bindings: [], value: isNaN(n) ? 0 : n };
+  }
+  // tap / press / release — remainder is one or more &behavior arg... bindings.
+  return { type, bindings: splitBehaviorList(rest) };
+}
+
+// Split a whitespace-separated list of behavior bindings into an array.
+// Each binding starts with `&`, and may have arguments that are non-& tokens.
+//   "&kp LSHFT &kp LGUI &mkp MCLK" -> ['&kp LSHFT', '&kp LGUI', '&mkp MCLK']
+function splitBehaviorList(str) {
+  const out = [];
+  const toks = str.trim().split(/\s+/).filter(Boolean);
+  let cur = null;
+  for (const t of toks) {
+    if (t.startsWith('&')) {
+      if (cur) out.push(cur);
+      cur = t;
+    } else if (cur) {
+      cur += ' ' + t;
+    }
+  }
+  if (cur) out.push(cur);
+  return out;
 }
 
 function parseBindings(str) {
@@ -1398,6 +1757,25 @@ document.addEventListener('keydown', function(e) {
 // ======================================================================
 // INIT
 // ======================================================================
+function populateModComboKeyList() {
+  const dl = document.getElementById('modComboKeyList');
+  if (!dl) return;
+  // Offer common ZMK keycode names so users don't type literal chars.
+  const suggestions = [
+    'A','B','C','D','E','F','G','H','I','J','K','L','M',
+    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+    'N0','N1','N2','N3','N4','N5','N6','N7','N8','N9',
+    'GRAVE','TILDE','MINUS','UNDER','EQUAL','PLUS',
+    'LBKT','RBKT','LBRC','RBRC','BSLH','PIPE',
+    'SEMI','COLON','APOS','DQT','COMMA','DOT','FSLH','QMARK',
+    'LT','GT','EXCL','AT','HASH','DLLR','PRCNT','CARET','AMPS','STAR','LPAR','RPAR',
+    'SPACE','TAB','ENTER','ESC','BSPC','DEL','INS',
+    'HOME','END','PG_UP','PG_DN','UP','DOWN','LEFT','RIGHT',
+    'F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12',
+  ];
+  dl.innerHTML = suggestions.map(s => `<option value="${s}"></option>`).join('');
+}
+
 function init() {
   initDefaultState();
   // Try to restore saved state
@@ -1408,11 +1786,16 @@ function init() {
       if (parsed.layers && parsed.layers.length) {
         state.layers = parsed.layers;
         state.macros = parsed.macros || [];
+        // Upgrade any legacy-format macro steps (pre multi-binding rewrite).
+        for (const m of state.macros) {
+          if (m && Array.isArray(m.steps)) m.steps = migrateMacroSteps(m.steps);
+        }
         state.activeLayer = 0;
         state.selectedKey = null;
       }
     }
   } catch(e) { console.warn('Failed to restore state:', e); }
+  populateModComboKeyList();
   render();
 }
 init();
