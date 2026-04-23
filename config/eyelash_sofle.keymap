@@ -153,7 +153,7 @@
 &kp TILDE  &kp F1     &kp F2     &kp F3     &kp F4     &kp F5       &mmv MOVE_UP   &kp F6   &kp F7   &kp F8   &kp F9   &kp F10  &trans 
 &kp GRAVE  &kp N1     &kp N2     &kp N3     &kp N4     &kp N5       &mmv MOVE_DOWN   &kp PG_UP       &kp LC(LS(N4))  &kp UP          &kp LG(LS(N5))  &kp MINUS       &kp EQUAL     
 &trans        &kp LSHFT     &kp LCTRL     &kp LEFT_ALT  &kp LEFT_GUI  &screenshot     &mmv MOVE_LEFT   &kp PG_DN      &kp LEFT       &kp DOWN       &kp RIGHT      &kp SEMI       &kp BACKSPACE
-&trans       &kp LC(`)    &kp LC(TAB)  &kp LG(`)    &kp LG(TAB)  &kp RC(UP)     &mmv MOVE_RIGHT   &rgb_ug RGB_BRI  &kp LC(LEFT)     &kp RC(DOWN)     &kp LC(RIGHT)    &kp LBKT         &kp RBKT       
+&trans       &kp LC(GRAVE)    &kp LC(TAB)  &kp LG(GRAVE)    &kp LG(TAB)  &kp RC(UP)     &mmv MOVE_RIGHT   &rgb_ug RGB_BRI  &kp LC(LEFT)     &kp RC(DOWN)     &kp LC(RIGHT)    &kp LBKT         &kp RBKT       
 &kp C_MUTE  &trans      &trans      &trans      &trans      &kp SPACE     &mkp LCLK  &del_word  &del_line  &trans     &trans     &trans   
             >;
 
@@ -164,7 +164,7 @@
         layer_3 {
             bindings = <
 &tog 0  &tog 1  &tog 2  &tog 3  &tog 4  &tog 5    &trans   &trans  &trans  &trans  &trans  &trans  &trans
-&kp LG(`)  &kp N1     &kp N2     &kp N3     &kp N4     &kp N5       &trans      &trans       &kp LC(`)    &kp UP       &kp LC(TAB)  &trans       &trans     
+&kp LG(GRAVE)  &kp N1     &kp N2     &kp N3     &kp N4     &kp N5       &trans      &trans       &kp LC(GRAVE)    &kp UP       &kp LC(TAB)  &trans       &trans     
 &kp LG(TAB)  &kp N6       &kp N7       &kp N8       &kp N9       &kp N0         &trans        &kp LS(LG(N3))  &kp LEFT        &kp DOWN        &kp RIGHT       &kp RSHFT       &kp BACKSPACE 
 &kp LSHFT  &kp LG(Z)  &kp LG(X)  &kp LG(C)  &kp LG(V)  &kp LG(A)    &trans      &kp LC(LG(Q))  &copy_url      &kp LG(F)      &kp LG(W)      &kp LG(SPACE)  &trans       
 &trans        &kp LCTRL     &kp LEFT_ALT  &kp LGUI      &kp ENTER     &kp SPACE       &trans      &kp SPACE   &kp ENTER   &trans      &trans      &kp DELETE
