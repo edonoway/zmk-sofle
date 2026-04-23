@@ -1,5 +1,5 @@
-#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200  // 600
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 25   // 10
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 25
 
 #include <input/processors.dtsi>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
@@ -15,9 +15,9 @@
 &msc_input_listener { input-processors = <&zip_scroll_scaler 2 1>; };
 
 &msc {
-    acceleration-exponent = <1>;      // 0
-    time-to-max-speed-ms = <100>;       // 300
-    delay-ms = <0>;                   // 0
+    acceleration-exponent = <1>;
+    time-to-max-speed-ms = <100>;
+    delay-ms = <0>;
 };
 
 &mmv {
@@ -33,7 +33,6 @@
         compatible = "zmk,behavior-sensor-rotate";
         #sensor-binding-cells = <0>;
         bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;
-
         tap-ms = <100>;
     };
 
@@ -53,62 +52,71 @@
         SHIFT_MCLK: SHIFT_MCLK {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings =
-                <&macro_press>,
+            bindings
+                = <&macro_press>,
                 <&kp LEFT_SHIFT>,
                 <&macro_press>,
                 <&mkp MB3>,
                 <&macro_pause_for_release>,
                 <&macro_release>,
-                <&kp LEFT_SHIFT &mkp MB3>;
+                <&kp LEFT_SHIFT>,
+                <&mkp MB3>;
             label = "SHIFT_MCLK";
         };
 
-        // macOS: Screenshot to clipboard (Shift+Cmd+Ctrl+4)
         screenshot: screenshot {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings =
-                <&macro_press &kp LSHFT &kp LGUI &kp LCTRL>,
-                <&macro_tap &kp N4>,
-                <&macro_release &kp LSHFT &kp LGUI &kp LCTRL>;
+            bindings = <>;
             label = "SCREENSHOT";
         };
 
-        // macOS: Lock screen (Cmd+Ctrl+Q)
         lock_screen: lock_screen {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings =
-                <&macro_press &kp LGUI &kp LCTRL>,
-                <&macro_tap &kp Q>,
-                <&macro_release &kp LGUI &kp LCTRL>;
+            bindings = <>;
             label = "LOCK_SCREEN";
         };
 
-        // macOS: Delete word backward (Option+Backspace)
         del_word: del_word {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings =
-                <&macro_press &kp LALT>,
-                <&macro_tap &kp BACKSPACE>,
-                <&macro_release &kp LALT>;
+            bindings = <>;
             label = "DEL_WORD";
         };
 
-        // macOS: Delete line (Cmd+Shift+K or select line + delete)
-        // This does Cmd+A to select line start, Shift+Cmd+Right to select to end, then delete
-        // Simpler: Ctrl+A (start of line) then Ctrl+K (kill to end) — works in most editors
         del_line: del_line {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings =
-                <&macro_press &kp LGUI>,
-                <&macro_tap &kp BACKSPACE>,
-                <&macro_release &kp LGUI>;
+            bindings = <>;
             label = "DEL_LINE";
         };
+
+        copy_url: copy_url {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings
+                = <&macro_press>,
+                <&kp LEFT_GUI>,
+                <&macro_press>,
+                <&kp L>,
+                <&macro_pause_for_release>,
+                <&macro_release>,
+                <&kp L>,
+                <&macro_release>,
+                <&kp LEFT_GUI>,
+                <&macro_press>,
+                <&kp LEFT_GUI>,
+                <&macro_press>,
+                <&kp C>,
+                <&macro_pause_for_release>,
+                <&macro_release>,
+                <&kp C>,
+                <&macro_release>,
+                <&kp LEFT_GUI>;
+            label = "COPY_URL";
+        };
+
     };
 
     keymap {
@@ -116,11 +124,11 @@
 
         colemak {
             bindings = <
-&tog 1      &kp N1     &kp N2        &kp N3        &kp N4  &kp N5       &kp UP_ARROW     &kp N6     &kp N7     &kp N8      &kp N9           &kp N0         &kp MINUS
-&kp TAB     &kp Q      &kp W         &kp F         &kp P   &kp B        &kp DOWN_ARROW   &kp J      &kp L      &kp U       &kp Y            &kp APOS       &kp BSLH
-&kp ESC     &kp A      &kp R         &kp S         &kp T   &kp G        &kp LEFT_ARROW   &kp M      &kp N      &kp E       &kp I            &kp O          &kp BACKSPACE
-&kp LSHFT   &kp Z      &kp X         &kp C         &kp D   &kp V        &kp RIGHT_ARROW  &kp K      &kp H      &kp COMMA   &kp DOT          &kp FSLH       &kp ENTER
-&kp C_MUTE  &kp LCTRL  &kp LEFT_ALT  &kp LEFT_GUI  &mo 2   &kp SPACE    &kp ENTER        &kp SPACE  &kp ENTER  &mo 3       &kp RIGHT_SHIFT  &kp DELETE
+&kp GRAVE  &kp N1     &kp N2     &kp N3     &kp N4     &kp N5       &kp UP_ARROW   &kp N6  &kp N7  &kp N8  &kp N9  &kp N0  &tog 1
+&kp TAB  &kp Q    &kp W    &kp F    &kp P    &kp B      &kp DOWN_ARROW   &kp J     &kp L     &kp U     &kp Y     &kp APOS  &kp BSLH
+&kp ESC  &kp A    &kp R    &kp S    &kp T    &kp G      &kp LEFT_ARROW   &kp M          &kp N          &kp E          &kp I          &kp O          &kp BACKSPACE
+&kp LSHFT  &kp Z      &kp X      &kp C      &kp D      &kp V        &kp RIGHT_ARROW   &kp K      &kp H      &kp COMMA  &kp DOT    &kp FSLH   &kp MINUS
+&kp C_MUTE    &kp LCTRL     &kp LEFT_ALT  &kp LEFT_GUI  &mo 2         &kp SPACE       &kp ENTER        &kp SPACE        &kp ENTER        &mo 3            &kp RIGHT_SHIFT  &kp DELETE     
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOL_DN>;
@@ -129,11 +137,11 @@
 
         qwerty {
             bindings = <
-&tog 1      &kp N1     &kp N2        &kp N3        &kp N4  &kp N5       &kp UP_ARROW     &kp N6     &kp N7     &kp N8     &kp N9           &kp N0      &kp MINUS
-&kp TAB     &kp Q      &kp W         &kp E         &kp R   &kp T        &kp DOWN_ARROW   &kp Y      &kp U      &kp I      &kp O            &kp P       &kp BSLH
-&kp ESC     &kp A      &kp S         &kp D         &kp F   &kp G        &kp LEFT_ARROW   &kp H      &kp J      &kp K      &kp L            &kp APOS    &kp BACKSPACE
-&kp LSHFT   &kp Z      &kp X         &kp C         &kp V   &kp B        &kp RIGHT_ARROW  &kp N      &kp M      &kp COMMA  &kp DOT          &kp FSLH    &kp ENTER
-&kp C_MUTE  &kp LCTRL  &kp LEFT_ALT  &kp LEFT_GUI  &mo 2   &kp SPACE    &kp ENTER        &kp SPACE  &kp ENTER  &mo 3      &kp RIGHT_SHIFT  &kp DELETE
+&kp GRAVE  &kp N1     &kp N2     &kp N3     &kp N4     &kp N5       &kp UP_ARROW   &kp N6  &kp N7  &kp N8  &kp N9  &kp N0  &tog 1
+&kp TAB  &kp Q    &kp W    &kp E    &kp R    &kp T      &kp DOWN_ARROW   &kp Y     &kp U     &kp I     &kp O     &kp P     &kp BSLH
+&kp ESC  &kp A    &kp S    &kp D    &kp F    &kp G      &kp LEFT_ARROW   &kp H          &kp J          &kp K          &kp L          &kp APOS       &kp BACKSPACE
+&kp LSHFT  &kp Z      &kp X      &kp C      &kp V      &kp B        &kp RIGHT_ARROW   &kp N      &kp M      &kp COMMA  &kp DOT    &kp FSLH   &kp MINUS
+&kp C_MUTE    &kp LCTRL     &kp LEFT_ALT  &kp LEFT_GUI  &mo 2         &kp SPACE       &kp ENTER        &kp SPACE        &kp ENTER        &mo 3            &kp RIGHT_SHIFT  &kp DELETE     
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOL_DN>;
@@ -142,54 +150,55 @@
 
         func_nav {
             bindings = <
-&kp GRAVE   &kp F1           &kp F2          &kp F3           &kp F4           &kp F5             &mmv MOVE_UP     &kp F6           &kp F7           &kp F8      &kp F9     &kp F10           &trans
-&kp TILDE      &kp N1        &kp N2       &kp N3        &kp N4        &kp N5           &mmv MOVE_DOWN   &kp PG_UP        &kp LC(LS(N4))          &kp UP      &kp HOME   &kp MINUS         &kp EQUAL
-&trans      &kp LSHFT        &kp LCTRL          &kp LEFT_ALT           &kp LEFT_GUI           &screenshot           &mmv MOVE_LEFT   &kp PG_DN        &kp LEFT         &kp DOWN    &kp RIGHT  &kp SEMI  &kp BACKSPACE
-&trans      &rgb_ug RGB_OFF  &rgb_ug RGB_ON  &rgb_ug RGB_EFF  &rgb_ug RGB_EFR  &rgb_ug RGB_SPI    &mmv MOVE_RIGHT  &rgb_ug RGB_BRI  &rgb_ug RGB_BRD  &kp LEFT_BRACKET  &kp RIGHT_BRACKET    &del_word          &del_line
-&kp C_MUTE  &trans           &trans          &trans           &trans           &kp SPACE             &mkp LCLK        &del_word           &del_line           &trans      &trans     &trans
+&kp TILDE  &kp F1     &kp F2     &kp F3     &kp F4     &kp F5       &mmv MOVE_UP   &kp F6   &kp F7   &kp F8   &kp F9   &kp F10  &trans 
+&kp GRAVE  &kp N1     &kp N2     &kp N3     &kp N4     &kp N5       &mmv MOVE_DOWN   &kp PG_UP       &kp LC(LS(N4))  &kp UP          &kp LG(LS(N5))  &kp MINUS       &kp EQUAL     
+&trans        &kp LSHFT     &kp LCTRL     &kp LEFT_ALT  &kp LEFT_GUI  &screenshot     &mmv MOVE_LEFT   &kp PG_DN      &kp LEFT       &kp DOWN       &kp RIGHT      &kp SEMI       &kp BACKSPACE
+&trans       &kp LC(`)    &kp LC(TAB)  &kp LG(`)    &kp LG(TAB)  &kp RC(UP)     &mmv MOVE_RIGHT   &rgb_ug RGB_BRI  &kp LC(LEFT)     &kp RC(DOWN)     &kp LC(RIGHT)    &kp LBKT         &kp RBKT       
+&kp C_MUTE  &trans      &trans      &trans      &trans      &kp SPACE     &mkp LCLK  &del_word  &del_line  &trans     &trans     &trans   
             >;
 
-            display-name = "FN/NAV";
             sensor-bindings = <&scroll_encoder>;
+            display-name = "FN/NAV";
         };
 
         layer_3 {
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans
+&tog 0  &tog 1  &tog 2  &tog 3  &tog 4  &tog 5    &trans   &trans  &trans  &trans  &trans  &trans  &trans
+&kp LG(`)  &kp N1     &kp N2     &kp N3     &kp N4     &kp N5       &trans      &trans       &kp LC(`)    &kp UP       &kp LC(TAB)  &trans       &trans     
+&kp LG(TAB)  &kp N6       &kp N7       &kp N8       &kp N9       &kp N0         &trans        &kp LS(LG(N3))  &kp LEFT        &kp DOWN        &kp RIGHT       &kp RSHFT       &kp BACKSPACE 
+&kp LSHFT  &kp LG(Z)  &kp LG(X)  &kp LG(C)  &kp LG(V)  &kp LG(A)    &trans      &kp LC(LG(Q))  &copy_url      &kp LG(F)      &kp LG(W)      &kp LG(SPACE)  &trans       
+&trans        &kp LCTRL     &kp LEFT_ALT  &kp LGUI      &kp ENTER     &kp SPACE       &trans      &kp SPACE   &kp ENTER   &trans      &trans      &kp DELETE
             >;
 
-            display-name = "layer3";
             sensor-bindings = <&scroll_encoder>;
+            display-name = "MOD/MACRO";
         };
 
         bt_sys {
             bindings = <
-&kp TILDE  &bt BT_SEL 0  &bt BT_SEL 1    &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &mmv MOVE_UP     &kp F6  &kp F7  &kp F8      &kp F9     &kp F10      &trans
-&trans     &bt BT_CLR    &bt BT_CLR_ALL  &trans        &trans        &trans          &mmv MOVE_DOWN   &trans  &trans  &kp F11     &kp F12    &kp UNDER    &kp PLUS
-&trans     &out OUT_USB  &out OUT_BLE    &trans        &trans        &trans          &mmv MOVE_LEFT   &trans  &trans  &trans      &trans     &kp LBRC     &kp RBRC
-&trans     &sys_reset    &trans          &bootloader   &trans        &trans          &mmv MOVE_RIGHT  &trans  &trans  &sys_reset  &soft_off  &bootloader  &trans
-&trans     &trans        &trans          &trans        &trans        &trans          &mkp LCLK        &trans  &trans  &trans      &trans     &trans
+&kp TILDE     &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &mmv MOVE_UP   &kp F6   &kp F7   &kp F8   &kp F9   &kp F10  &trans 
+&trans          &bt BT_CLR      &bt BT_CLR_ALL  &trans          &trans          &trans            &mmv MOVE_DOWN   &trans     &trans     &kp F11    &kp F12    &kp UNDER  &kp PLUS 
+&trans        &out OUT_USB  &out OUT_BLE  &trans        &trans        &trans          &mmv MOVE_LEFT   &trans    &trans    &trans    &trans    &kp LBRC  &kp RBRC
+&trans       &sys_reset   &trans       &bootloader  &trans       &trans         &mmv MOVE_RIGHT   &trans       &trans       &sys_reset   &soft_off    &bootloader  &trans     
+&trans  &trans  &trans  &trans  &trans  &trans    &mkp LCLK  &trans     &trans     &trans     &trans     &trans   
             >;
 
-            display-name = "BT/SYS";
             sensor-bindings = <&scroll_encoder>;
+            display-name = "BT/SYS";
         };
 
         layer_5 {
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &rgb_ug RGB_BRI   &trans  &trans  &trans  &trans  &trans  &trans
+&trans           &rgb_ug RGB_OFF  &rgb_ug RGB_ON   &rgb_ug RGB_BRD  &rgb_ug RGB_BRI  &trans             &rgb_ug RGB_BRD   &trans  &trans  &trans  &trans  &trans  &trans
+&trans           &rgb_ug RGB_EFR  &rgb_ug RGB_EFF  &rgb_ug RGB_SPD  &rgb_ug RGB_SPI  &trans             &rgb_ug RGB_EFR   &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &rgb_ug RGB_EFF   &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans
             >;
 
-            display-name = "layer5";
             sensor-bindings = <&scroll_encoder>;
+            display-name = "RGB";
         };
+
     };
 };

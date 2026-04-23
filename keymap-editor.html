@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZMK Keymap Editor &mdash; Eyelash Sofle</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & VARIABLES ===== */
+:root {
+  --bg-primary: #0f0f1a;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #252540;
+  --bg-card: #20203a;
+  --bg-hover: #2d2d50;
+  --bg-input: #16162b;
+  --text-primary: #e8e8f0;
+  --text-secondary: #a0a0b8;
+  --text-muted: #6a6a80;
+  --border: #333355;
+  --border-light: #444466;
+  --accent: #6c63ff;
+  --accent-hover: #7f77ff;
+  --accent-dim: rgba(108,99,255,0.15);
+  --accent-glow: rgba(108,99,255,0.35);
+  --danger: #ff4757;
+  --success: #2ed573;
+  --warning: #ffa502;
+  --layer0: #6c63ff;
+  --layer1: #ff6b6b;
+  --layer2: #4ecdc4;
+  --layer3: #ffd93d;
+  --layer4: #ff9ff3;
+  --layer5: #54a0ff;
+  --key-alpha: #282848;
+  --key-mod: #1e3348;
+  --key-layer: #3a1e50;
+  --key-special: #1e3838;
+  --key-media: #38381e;
+  --key-bt: #1e2040;
+  --key-nav: #1e381e;
+  --key-trans: #18182a;
+  --key-none: #141418;
+  --key-mouse: #381e1e;
+  --key-rgb: #1e3838;
+  --key-system: #3a1818;
+  --key-macro: #38184a;
+  --key-func: #1e2838;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+  --transition: 0.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-light)}
+
+/* ===== LAYOUT ===== */
+#app{display:flex;flex-direction:column;height:100vh}
+header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:16px;flex-shrink:0;z-index:100}
+header h1{font-size:17px;font-weight:700;background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+header .subtitle{font-size:11px;color:var(--text-muted);white-space:nowrap;padding:3px 8px;background:var(--bg-tertiary);border-radius:4px}
+.header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.main-content{display:flex;flex:1;overflow:hidden}
+.editor-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.sidebar{width:340px;min-width:340px;background:var(--bg-secondary);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+
+/* ===== BUTTONS ===== */
+.btn{padding:7px 14px;border:1px solid var(--border);border-radius:6px;background:var(--bg-tertiary);color:var(--text-primary);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:all var(--transition);display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn:hover{background:var(--bg-hover);border-color:var(--border-light)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn-danger{border-color:var(--danger);color:var(--danger)}
+.btn-danger:hover{background:rgba(255,71,87,0.12)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-icon{width:30px;height:30px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:16px}
+
+/* ===== LAYER TAB BAR ===== */
+.layer-bar{display:flex;align-items:center;gap:2px;padding:8px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
+.layer-tab{padding:7px 16px;border-radius:6px 6px 0 0;background:var(--bg-tertiary);border:1px solid var(--border);border-bottom:none;color:var(--text-secondary);font-size:12px;font-weight:500;cursor:pointer;transition:all var(--transition);position:relative;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.layer-tab:hover{background:var(--bg-hover);color:var(--text-primary)}
+.layer-tab.active{background:var(--bg-primary);color:var(--text-primary);border-color:var(--border-light)}
+.layer-tab.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.layer-tab[data-layer="0"].active::after{background:var(--layer0)}
+.layer-tab[data-layer="1"].active::after{background:var(--layer1)}
+.layer-tab[data-layer="2"].active::after{background:var(--layer2)}
+.layer-tab[data-layer="3"].active::after{background:var(--layer3)}
+.layer-tab[data-layer="4"].active::after{background:var(--layer4)}
+.layer-tab[data-layer="5"].active::after{background:var(--layer5)}
+.tab-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.layer-tab[data-layer="0"] .tab-dot{background:var(--layer0)}
+.layer-tab[data-layer="1"] .tab-dot{background:var(--layer1)}
+.layer-tab[data-layer="2"] .tab-dot{background:var(--layer2)}
+.layer-tab[data-layer="3"] .tab-dot{background:var(--layer3)}
+.layer-tab[data-layer="4"] .tab-dot{background:var(--layer4)}
+.layer-tab[data-layer="5"] .tab-dot{background:var(--layer5)}
+.add-layer-btn{padding:5px 12px;border:1px dashed var(--border);border-radius:6px;background:transparent;color:var(--text-muted);font-size:12px;font-family:inherit;cursor:pointer;transition:all var(--transition)}
+.add-layer-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ===== TOOLBAR ===== */
+.toolbar{padding:6px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text-secondary);flex-shrink:0}
+.toolbar label{font-weight:500;color:var(--text-muted)}
+.toolbar select,.toolbar input[type="text"]{padding:4px 8px;background:var(--bg-input);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);font-size:12px;font-family:inherit}
+.toolbar select:focus,.toolbar input:focus{outline:none;border-color:var(--accent)}
+.toolbar input[type="text"]{font-family:'JetBrains Mono',monospace;width:120px}
+.toolbar .sep{width:1px;height:18px;background:var(--border);margin:0 4px}
+
+/* ===== KEYBOARD AREA ===== */
+.keyboard-container{flex:1;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;background:radial-gradient(ellipse at center,rgba(108,99,255,0.03) 0%,transparent 70%)}
+.keyboard-layout{display:flex;gap:0;align-items:flex-start}
+.keyboard-half{display:flex;flex-direction:column;gap:3px}
+.keyboard-center{display:flex;flex-direction:column;gap:3px;padding:0 6px;margin-top:6px;transform:perspective(300px) rotateY(0deg)}
+.key-row{display:flex;gap:3px;align-items:center}
+.thumb-cluster{display:flex;gap:3px;margin-top:10px}
+.thumb-left{justify-content:flex-end;padding-left:36px;transform:rotate(5deg);transform-origin:right center}
+.thumb-right{padding-right:36px;transform:rotate(-5deg);transform-origin:left center}
+
+/* ===== KEY ===== */
+.key{
+  width:54px;height:42px;
+  border:1px solid var(--border);border-radius:5px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.12s ease;position:relative;
+  font-size:10px;font-weight:500;font-family:'JetBrains Mono',monospace;
+  line-height:1.2;text-align:center;padding:2px 3px;
+  overflow:hidden;user-select:none;
+  background:var(--key-alpha);
+  box-shadow:0 2px 4px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.key:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 12px rgba(108,99,255,0.2),inset 0 1px 0 rgba(255,255,255,0.06);z-index:10}
+.key.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow),0 0 24px rgba(108,99,255,0.25);z-index:20}
+.key .key-label{font-size:9.5px;color:var(--text-primary);word-break:break-all;max-height:100%;overflow:hidden;line-height:1.1}
+.key .key-sublabel{font-size:7.5px;color:var(--text-muted);margin-top:1px}
+.key.type-mod{background:var(--key-mod)}
+.key.type-layer{background:var(--key-layer)}
+.key.type-special{background:var(--key-special)}
+.key.type-media{background:var(--key-media)}
+.key.type-bt{background:var(--key-bt)}
+.key.type-nav{background:var(--key-nav)}
+.key.type-trans{background:var(--key-trans);border-style:dashed;opacity:0.7}
+.key.type-none{background:var(--key-none);opacity:0.5}
+.key.type-mouse{background:var(--key-mouse)}
+.key.type-rgb{background:var(--key-rgb)}
+.key.type-system{background:var(--key-system)}
+.key.type-macro{background:var(--key-macro)}
+.key.type-func{background:var(--key-func)}
+.center-key{width:38px;height:38px;border-radius:50%;font-size:8px}
+.thumb-key{width:50px;height:40px}
+
+/* ===== SIDEBAR ===== */
+.sidebar-tabs{display:flex;border-bottom:1px solid var(--border)}
+.sidebar-tab{flex:1;padding:9px 8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all var(--transition);text-align:center;text-transform:uppercase;letter-spacing:0.5px}
+.sidebar-tab:hover{color:var(--text-secondary)}
+.sidebar-tab.active{color:var(--text-primary);border-bottom-color:var(--accent)}
+.sidebar-panel{display:none}
+.sidebar-panel.active{display:block}
+.key-info-bar{padding:8px 14px;background:var(--bg-tertiary);border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;min-height:36px}
+.key-info-bar .key-pos{color:var(--text-muted);font-size:10px}
+.key-info-bar .key-binding{color:var(--accent)}
+.sidebar-body{flex:1;overflow-y:auto;padding:10px}
+
+/* ===== SEARCH BOX ===== */
+.search-box{width:100%;padding:8px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-family:inherit;font-size:12px;margin-bottom:10px}
+.search-box:focus{outline:none;border-color:var(--accent)}
+.search-box::placeholder{color:var(--text-muted)}
+
+/* ===== BINDING CATEGORIES ===== */
+.binding-category{margin-bottom:4px}
+.cat-header{padding:6px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:5px;border-radius:4px;transition:background var(--transition)}
+.cat-header:hover{background:var(--bg-tertiary)}
+.cat-header .arrow{font-size:8px;transition:transform var(--transition);width:12px;text-align:center}
+.cat-header.collapsed .arrow{transform:rotate(-90deg)}
+.cat-header .cat-count{margin-left:auto;font-size:9px;opacity:0.5;font-weight:400}
+.binding-items{display:flex;flex-wrap:wrap;gap:3px;padding:4px 0 8px}
+.binding-items.hidden{display:none}
+.binding-item{padding:4px 7px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:4px;font-size:10px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all var(--transition);color:var(--text-secondary)}
+.binding-item:hover{background:var(--accent-dim);border-color:var(--accent);color:var(--text-primary)}
+
+/* ===== TOAST ===== */
+.toast-container{position:fixed;top:16px;right:16px;z-index:10000;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.toast{padding:10px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-lg);font-size:12px;animation:toastIn .25s ease,toastOut .25s ease 2.5s forwards;display:flex;align-items:center;gap:8px;pointer-events:auto}
+.toast.success{border-left:3px solid var(--success)}.toast.success::before{content:'\2713';color:var(--success);font-weight:bold}
+.toast.error{border-left:3px solid var(--danger)}.toast.error::before{content:'\2717';color:var(--danger);font-weight:bold}
+.toast.info{border-left:3px solid var(--accent)}.toast.info::before{content:'\2139';color:var(--accent);font-weight:bold}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateX(30px)}}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .15s ease}
+.modal-overlay.hidden{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:90%;max-width:680px;max-height:85vh;display:flex;flex-direction:column;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:600}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* ===== FORMS ===== */
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.3px}
+.form-input,.form-select{width:100%;padding:7px 10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-family:inherit;font-size:12px}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--accent)}
+.form-select{cursor:pointer}
+.form-select option{background:var(--bg-secondary)}
+
+/* ===== MACRO EDITOR ===== */
+.macro-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-height:50px;padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px}
+.macro-step{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace}
+.macro-step .step-type{font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:3px;min-width:48px;text-align:center}
+.macro-step .step-type.tap{background:rgba(46,213,115,0.15);color:var(--success)}
+.macro-step .step-type.press{background:rgba(108,99,255,0.15);color:var(--accent)}
+.macro-step .step-type.release{background:rgba(255,71,87,0.15);color:var(--danger)}
+.macro-step .step-type.pause{background:rgba(255,165,2,0.15);color:var(--warning)}
+.macro-step .step-keys{flex:1;color:var(--text-secondary)}
+.macro-step .remove-step{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px}
+.macro-step .remove-step:hover{color:var(--danger)}
+.macro-add-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.macro-preview{padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-secondary);white-space:pre-wrap;word-break:break-all;max-height:180px;overflow-y:auto}
+
+/* ===== MOD COMBO BUILDER ===== */
+.mod-builder{display:flex;flex-direction:column;gap:10px}
+.mod-checkboxes{display:flex;gap:10px;flex-wrap:wrap}
+.mod-checkbox{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer}
+.mod-checkbox input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px}
+.mod-preview{padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;text-align:center;color:var(--accent);min-height:38px;display:flex;align-items:center;justify-content:center}
+
+/* ===== MACRO LIST ===== */
+.macro-list-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:4px;margin-bottom:4px;cursor:pointer;transition:all var(--transition)}
+.macro-list-item:hover{border-color:var(--accent);background:var(--accent-dim)}
+.macro-list-item .macro-name{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-primary)}
+.macro-list-item .macro-actions{display:flex;gap:4px}
+.macro-list-item .macro-actions button{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:12px;padding:2px 4px}
+.macro-list-item .macro-actions button:hover{color:var(--text-primary)}
+
+/* ===== UTILITIES ===== */
+.file-input-hidden{display:none}
+.hidden{display:none!important}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1300px){
+  .sidebar{width:300px;min-width:300px}
+  .key{width:48px;height:38px;font-size:9px}
+  .key .key-label{font-size:8.5px}
+  .center-key{width:34px;height:34px;font-size:7px}
+  .thumb-key{width:44px;height:36px}
+}
+@media(max-width:1100px){
+  .key{width:42px;height:34px}
+  .center-key{width:30px;height:30px}
+  .thumb-key{width:40px;height:32px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>ZMK Keymap Editor</h1>
+    <span class="subtitle">Eyelash Sofle</span>
+    <div class="header-actions">
+      <button class="btn btn-sm" onclick="importKeymap()" title="Ctrl/Cmd+O">Import</button>
+      <button class="btn btn-sm btn-primary" onclick="exportKeymap()" title="Ctrl/Cmd+S">Export .keymap</button>
+      <input type="file" id="fileInput" class="file-input-hidden" accept=".keymap,.txt,.dts" onchange="handleFileImport(event)">
+    </div>
+  </header>
+
+  <div class="layer-bar" id="layerBar"></div>
+
+  <div class="toolbar">
+    <label>Encoder:</label>
+    <select id="sensorSelect" onchange="handleSensorChange(this.value)">
+      <option value="volume">Volume Up/Down</option>
+      <option value="scroll">Scroll Up/Down</option>
+    </select>
+    <div class="sep"></div>
+    <label>Layer name:</label>
+    <input type="text" id="layerNameInput" placeholder="layer name" oninput="handleLayerNameChange(this.value)">
+    <div class="sep"></div>
+    <button class="btn btn-sm btn-danger" onclick="removeActiveLayer()">Remove Layer</button>
+  </div>
+
+  <div class="main-content">
+    <div class="editor-area">
+      <div class="keyboard-container" id="keyboardContainer"></div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-panel="bindings" onclick="switchSidebarTab('bindings')">Bindings</button>
+        <button class="sidebar-tab" data-panel="modcombo" onclick="switchSidebarTab('modcombo')">Mod Combo</button>
+        <button class="sidebar-tab" data-panel="macros" onclick="switchSidebarTab('macros')">Macros</button>
+      </div>
+      <div class="key-info-bar" id="keyInfoBar">
+        <span style="color:var(--text-muted)">Click a key to edit its binding</span>
+      </div>
+      <div class="sidebar-body">
+        <div class="sidebar-panel active" id="panel-bindings">
+          <input type="text" class="search-box" id="bindingSearch" placeholder="Search bindings... (e.g. shift, f12, space)" oninput="filterBindings(this.value)">
+          <div id="bindingCategories"></div>
+        </div>
+        <div class="sidebar-panel" id="panel-modcombo">
+          <div class="mod-builder">
+            <div class="form-group">
+              <label class="form-label">Modifiers</label>
+              <div class="mod-checkboxes">
+                <label class="mod-checkbox"><input type="checkbox" id="modLG" onchange="updateModCombo()"> Cmd</label>
+                <label class="mod-checkbox"><input type="checkbox" id="modLC" onchange="updateModCombo()"> Ctrl</label>
+                <label class="mod-checkbox"><input type="checkbox" id="modLA" onchange="updateModCombo()"> Alt</label>
+                <label class="mod-checkbox"><input type="checkbox" id="modLS" onchange="updateModCombo()"> Shift</label>
+              </div>
+              <div class="mod-checkboxes" style="margin-top:6px">
+                <label class="mod-checkbox"><input type="checkbox" id="modRG" onchange="updateModCombo()"> RCmd</label>
+                <label class="mod-checkbox"><input type="checkbox" id="modRC" onchange="updateModCombo()"> RCtrl</label>
+                <label class="mod-checkbox"><input type="checkbox" id="modRA" onchange="updateModCombo()"> RAlt</label>
+                <label class="mod-checkbox"><input type="checkbox" id="modRS" onchange="updateModCombo()"> RShift</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Key</label>
+              <input type="text" class="form-input" id="modComboKey" placeholder="e.g. C, V, Q, SPACE, N4, TAB" oninput="updateModCombo()" style="font-family:'JetBrains Mono',monospace">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Preview</label>
+              <div class="mod-preview" id="modComboPreview">Select modifiers and a key</div>
+            </div>
+            <button class="btn btn-primary" onclick="applyModCombo()" style="width:100%">Apply to Selected Key</button>
+            <div style="margin-top:14px">
+              <label class="form-label">Quick Combos (click to assign)</label>
+              <div class="binding-items" style="padding-top:6px">
+                <div class="binding-item" onclick="quickModCombo('LG(C)')">Cmd+C</div>
+                <div class="binding-item" onclick="quickModCombo('LG(V)')">Cmd+V</div>
+                <div class="binding-item" onclick="quickModCombo('LG(X)')">Cmd+X</div>
+                <div class="binding-item" onclick="quickModCombo('LG(Z)')">Cmd+Z</div>
+                <div class="binding-item" onclick="quickModCombo('LG(A)')">Cmd+A</div>
+                <div class="binding-item" onclick="quickModCombo('LG(S)')">Cmd+S</div>
+                <div class="binding-item" onclick="quickModCombo('LG(F)')">Cmd+F</div>
+                <div class="binding-item" onclick="quickModCombo('LG(W)')">Cmd+W</div>
+                <div class="binding-item" onclick="quickModCombo('LG(Q)')">Cmd+Q</div>
+                <div class="binding-item" onclick="quickModCombo('LG(T)')">Cmd+T</div>
+                <div class="binding-item" onclick="quickModCombo('LG(TAB)')">Cmd+Tab</div>
+                <div class="binding-item" onclick="quickModCombo('LG(SPACE)')">Cmd+Spc</div>
+                <div class="binding-item" onclick="quickModCombo('LC(TAB)')">Ctrl+Tab</div>
+                <div class="binding-item" onclick="quickModCombo('LA(TAB)')">Alt+Tab</div>
+                <div class="binding-item" onclick="quickModCombo('LS(LG(N3))')">Scrn Full</div>
+                <div class="binding-item" onclick="quickModCombo('LS(LG(N4))')">Scrn Sel</div>
+                <div class="binding-item" onclick="quickModCombo('LC(LG(Q))')">Lock</div>
+                <div class="binding-item" onclick="quickModCombo('LG(BSPC)')">Del Line</div>
+                <div class="binding-item" onclick="quickModCombo('LA(BSPC)')">Del Word</div>
+                <div class="binding-item" onclick="quickModCombo('LG(LS(Z))')">Redo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-panel" id="panel-macros">
+          <button class="btn btn-primary btn-sm" onclick="openMacroEditor()" style="width:100%;margin-bottom:10px">+ New Macro</button>
+          <div class="form-group">
+            <label class="form-label">Templates (click to create)</label>
+            <div class="binding-items" style="padding-top:4px">
+              <div class="binding-item" onclick="loadMacroTemplate('screenshot')">Screenshot</div>
+              <div class="binding-item" onclick="loadMacroTemplate('del_word')">Del Word</div>
+              <div class="binding-item" onclick="loadMacroTemplate('del_line')">Del Line</div>
+              <div class="binding-item" onclick="loadMacroTemplate('lock_screen')">Lock Screen</div>
+              <div class="binding-item" onclick="loadMacroTemplate('shift_mclk')">Shift+MClk</div>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:10px">
+            <label class="form-label">Defined Macros (click to assign to key)</label>
+            <div id="macroList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Macro Editor Modal -->
+<div class="modal-overlay hidden" id="macroModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="macroModalTitle">New Macro</span>
+      <button class="btn btn-icon" onclick="closeMacroEditor()" style="font-size:18px">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:12px">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Name (C identifier)</label>
+          <input type="text" class="form-input" id="macroNameInput" placeholder="my_macro" style="font-family:'JetBrains Mono',monospace">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Label</label>
+          <input type="text" class="form-input" id="macroLabelInput" placeholder="MY_MACRO">
+        </div>
+      </div>
+      <div style="display:flex;gap:12px">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">wait-ms</label>
+          <input type="number" class="form-input" id="macroWaitMs" value="30" min="0">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">tap-ms</label>
+          <input type="number" class="form-input" id="macroTapMs" value="40" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Steps</label>
+        <div class="macro-steps" id="macroSteps">
+          <div style="color:var(--text-muted);font-size:11px;text-align:center;padding:10px">No steps added yet</div>
+        </div>
+      </div>
+      <div class="macro-add-btns">
+        <button class="btn btn-sm" onclick="addMacroStep('tap')">+ Tap</button>
+        <button class="btn btn-sm" onclick="addMacroStep('press')">+ Press</button>
+        <button class="btn btn-sm" onclick="addMacroStep('release')">+ Release</button>
+        <button class="btn btn-sm" onclick="addMacroStep('pause')">+ Pause</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ZMK Preview</label>
+        <div class="macro-preview" id="macroPreview">// macro output will appear here</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeMacroEditor()">Cancel</button>
+      <button class="btn btn-danger" id="macroDeleteBtn" onclick="deleteMacro()" style="display:none">Delete</button>
+      <button class="btn btn-primary" onclick="saveMacro()">Save Macro</button>
+    </div>
+  </div>
+</div>
+
+<!-- Step Key Picker Modal -->
+<div class="modal-overlay hidden" id="stepKeyModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <span>Select Key for Step</span>
+      <button class="btn btn-icon" onclick="closeStepKeyPicker()" style="font-size:18px">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="text" class="search-box" id="stepKeySearch" placeholder="Search keys..." oninput="filterStepKeys(this.value)">
+      <div id="stepKeyList" class="binding-items" style="max-height:320px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ======================================================================
+// STATE
+// ======================================================================
+const state = {
+  layers: [],
+  macros: [],
+  activeLayer: 0,
+  selectedKey: null,
+  editingMacroIndex: -1,
+  currentMacroSteps: [],
+};
+
+const ROW_LENGTHS = [13, 13, 13, 13, 12];
+const TOTAL_KEYS = 64;
+
+// ======================================================================
+// BINDING DATABASE
+// ======================================================================
+const BINDINGS = {
+  'Letters': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => ({
+    code: `&kp ${l}`, label: l, search: `${l.toLowerCase()} letter`
+  })),
+  'Numbers': [
+    {code:'&kp N1',label:'1',search:'1 n1 one number'},{code:'&kp N2',label:'2',search:'2 n2 two number'},
+    {code:'&kp N3',label:'3',search:'3 n3 three number'},{code:'&kp N4',label:'4',search:'4 n4 four number'},
+    {code:'&kp N5',label:'5',search:'5 n5 five number'},{code:'&kp N6',label:'6',search:'6 n6 six number'},
+    {code:'&kp N7',label:'7',search:'7 n7 seven number'},{code:'&kp N8',label:'8',search:'8 n8 eight number'},
+    {code:'&kp N9',label:'9',search:'9 n9 nine number'},{code:'&kp N0',label:'0',search:'0 n0 zero number'},
+  ],
+  'Symbols': [
+    {code:'&kp MINUS',label:'-',search:'minus dash hyphen'},{code:'&kp EQUAL',label:'=',search:'equal equals'},
+    {code:'&kp LBKT',label:'[',search:'lbkt left bracket'},{code:'&kp RBKT',label:']',search:'rbkt right bracket'},
+    {code:'&kp BSLH',label:'\\',search:'bslh backslash'},{code:'&kp SEMI',label:';',search:'semi semicolon'},
+    {code:'&kp SQT',label:"'",search:'sqt apos apostrophe single quote'},{code:'&kp GRAVE',label:'`',search:'grave backtick'},
+    {code:'&kp COMMA',label:',',search:'comma'},{code:'&kp DOT',label:'.',search:'dot period'},
+    {code:'&kp FSLH',label:'/',search:'fslh slash forward'},
+    {code:'&kp EXCL',label:'!',search:'excl exclamation bang'},{code:'&kp AT',label:'@',search:'at'},
+    {code:'&kp HASH',label:'#',search:'hash pound'},{code:'&kp DLLR',label:'$',search:'dllr dollar'},
+    {code:'&kp PRCNT',label:'%',search:'prcnt percent'},{code:'&kp CARET',label:'^',search:'caret'},
+    {code:'&kp AMPS',label:'&',search:'amps ampersand'},{code:'&kp STAR',label:'*',search:'star asterisk'},
+    {code:'&kp LPAR',label:'(',search:'lpar left paren parenthesis'},{code:'&kp RPAR',label:')',search:'rpar right paren'},
+    {code:'&kp UNDER',label:'_',search:'under underscore'},{code:'&kp PLUS',label:'+',search:'plus'},
+    {code:'&kp LBRC',label:'{',search:'lbrc left brace curly'},{code:'&kp RBRC',label:'}',search:'rbrc right brace curly'},
+    {code:'&kp PIPE',label:'|',search:'pipe bar'},{code:'&kp COLON',label:':',search:'colon'},
+    {code:'&kp DQT',label:'"',search:'dqt double quote'},{code:'&kp TILDE',label:'~',search:'tilde'},
+    {code:'&kp LT',label:'<',search:'lt less than angle'},{code:'&kp GT',label:'>',search:'gt greater than angle'},
+    {code:'&kp QMARK',label:'?',search:'qmark question mark'},
+  ],
+  'Modifiers': [
+    {code:'&kp LSHFT',label:'LShift',search:'lshft left shift'},{code:'&kp RSHFT',label:'RShift',search:'rshft right shift'},
+    {code:'&kp LCTRL',label:'LCtrl',search:'lctrl left control'},{code:'&kp RCTRL',label:'RCtrl',search:'rctrl right control'},
+    {code:'&kp LALT',label:'LAlt',search:'lalt left alt option'},{code:'&kp RALT',label:'RAlt',search:'ralt right alt option'},
+    {code:'&kp LGUI',label:'LCmd',search:'lgui left gui cmd command super meta'},
+    {code:'&kp RGUI',label:'RCmd',search:'rgui right gui cmd command super meta'},
+    {code:'&kp LEFT_GUI',label:'LCmd',search:'left gui cmd command'},
+    {code:'&kp LEFT_ALT',label:'LAlt',search:'left alt option'},
+    {code:'&kp LEFT_SHIFT',label:'LShift',search:'left shift'},
+    {code:'&kp RIGHT_SHIFT',label:'RShift',search:'right shift'},
+    {code:'&sk LSHFT',label:'Sticky LSh',search:'sticky shift one-shot'},{code:'&sk RSHFT',label:'Sticky RSh',search:'sticky right shift'},
+    {code:'&sk LCTRL',label:'Sticky LCt',search:'sticky ctrl control'},{code:'&sk LALT',label:'Sticky LAlt',search:'sticky alt'},
+    {code:'&sk LGUI',label:'Sticky LCmd',search:'sticky cmd gui command'},
+  ],
+  'Function Keys': Array.from({length:24},(_,i)=>({code:`&kp F${i+1}`,label:`F${i+1}`,search:`f${i+1} function`})),
+  'Navigation': [
+    {code:'&kp UP',label:'Up',search:'up arrow'},{code:'&kp DOWN',label:'Down',search:'down arrow'},
+    {code:'&kp LEFT',label:'Left',search:'left arrow'},{code:'&kp RIGHT',label:'Right',search:'right arrow'},
+    {code:'&kp UP_ARROW',label:'Up',search:'up arrow'},{code:'&kp DOWN_ARROW',label:'Down',search:'down arrow'},
+    {code:'&kp LEFT_ARROW',label:'Left',search:'left arrow'},{code:'&kp RIGHT_ARROW',label:'Right',search:'right arrow'},
+    {code:'&kp HOME',label:'Home',search:'home'},{code:'&kp END',label:'End',search:'end'},
+    {code:'&kp PG_UP',label:'PgUp',search:'pg_up page up'},{code:'&kp PG_DN',label:'PgDn',search:'pg_dn page down'},
+  ],
+  'Editing': [
+    {code:'&kp BACKSPACE',label:'Bksp',search:'backspace bspc delete back'},
+    {code:'&kp BSPC',label:'Bksp',search:'bspc backspace'},
+    {code:'&kp DELETE',label:'Del',search:'delete del forward'},
+    {code:'&kp DEL',label:'Del',search:'del delete'},
+    {code:'&kp INSERT',label:'Ins',search:'insert ins'},
+    {code:'&kp TAB',label:'Tab',search:'tab'},
+    {code:'&kp ENTER',label:'Enter',search:'enter return ret'},
+    {code:'&kp RET',label:'Enter',search:'ret return enter'},
+    {code:'&kp SPACE',label:'Space',search:'space spacebar'},
+    {code:'&kp ESC',label:'Esc',search:'esc escape'},
+    {code:'&kp CAPS',label:'CapsLk',search:'caps capslock lock'},
+    {code:'&kp PSCRN',label:'PrtScr',search:'print screen pscrn'},
+    {code:'&kp SLCK',label:'ScrLk',search:'scroll lock slck'},
+    {code:'&kp PAUSE_BREAK',label:'Pause',search:'pause break'},
+  ],
+  'Media': [
+    {code:'&kp C_VOL_UP',label:'Vol +',search:'volume up c_vol_up'},
+    {code:'&kp C_VOL_DN',label:'Vol -',search:'volume down c_vol_dn'},
+    {code:'&kp C_VOLUME_UP',label:'Vol +',search:'volume up'},
+    {code:'&kp C_MUTE',label:'Mute',search:'mute c_mute'},
+    {code:'&kp C_PP',label:'Play/P',search:'play pause c_pp media'},
+    {code:'&kp C_NEXT',label:'Next',search:'next track c_next'},
+    {code:'&kp C_PREV',label:'Prev',search:'prev previous track c_prev'},
+    {code:'&kp C_BRI_UP',label:'Bri +',search:'brightness up c_bri_up'},
+    {code:'&kp C_BRI_DN',label:'Bri -',search:'brightness down c_bri_dn'},
+    {code:'&kp C_AC_DESKTOP_SHOW_ALL_WINDOWS',label:'MissCtrl',search:'mission control show windows desktop'},
+    {code:'&kp C_AC_DESKTOP_SHOW_ALL_APPLICATIONS',label:'Launchpd',search:'launchpad show applications apps'},
+    {code:'&kp GLOBE',label:'Globe',search:'globe fn function'},
+  ],
+  'Layer': [
+    {code:'&mo 0',label:'MO(0)',search:'mo momentary layer 0'},
+    {code:'&mo 1',label:'MO(1)',search:'mo momentary layer 1'},
+    {code:'&mo 2',label:'MO(2)',search:'mo momentary layer 2'},
+    {code:'&mo 3',label:'MO(3)',search:'mo momentary layer 3'},
+    {code:'&mo 4',label:'MO(4)',search:'mo momentary layer 4'},
+    {code:'&mo 5',label:'MO(5)',search:'mo momentary layer 5'},
+    {code:'&tog 0',label:'TOG(0)',search:'tog toggle layer 0'},
+    {code:'&tog 1',label:'TOG(1)',search:'tog toggle layer 1'},
+    {code:'&tog 2',label:'TOG(2)',search:'tog toggle layer 2'},
+    {code:'&tog 3',label:'TOG(3)',search:'tog toggle layer 3'},
+    {code:'&tog 4',label:'TOG(4)',search:'tog toggle layer 4'},
+    {code:'&tog 5',label:'TOG(5)',search:'tog toggle layer 5'},
+    {code:'&to 0',label:'TO(0)',search:'to switch layer 0'},
+    {code:'&to 1',label:'TO(1)',search:'to switch layer 1'},
+    {code:'&to 2',label:'TO(2)',search:'to switch layer 2'},
+    {code:'&to 3',label:'TO(3)',search:'to switch layer 3'},
+    {code:'&to 4',label:'TO(4)',search:'to switch layer 4'},
+    {code:'&to 5',label:'TO(5)',search:'to switch layer 5'},
+    {code:'&sl 0',label:'SL(0)',search:'sl sticky layer 0'},
+    {code:'&sl 1',label:'SL(1)',search:'sl sticky layer 1'},
+    {code:'&sl 2',label:'SL(2)',search:'sl sticky layer 2'},
+    {code:'&sl 3',label:'SL(3)',search:'sl sticky layer 3'},
+    {code:'&sl 4',label:'SL(4)',search:'sl sticky layer 4'},
+    {code:'&sl 5',label:'SL(5)',search:'sl sticky layer 5'},
+    {code:'&lt 1 SPACE',label:'LT1 Spc',search:'lt layer tap 1 space'},
+    {code:'&lt 2 SPACE',label:'LT2 Spc',search:'lt layer tap 2 space'},
+    {code:'&lt 3 SPACE',label:'LT3 Spc',search:'lt layer tap 3 space'},
+    {code:'&lt 1 ENTER',label:'LT1 Ent',search:'lt layer tap 1 enter return'},
+    {code:'&lt 2 ENTER',label:'LT2 Ent',search:'lt layer tap 2 enter return'},
+    {code:'&lt 3 ENTER',label:'LT3 Ent',search:'lt layer tap 3 enter return'},
+    {code:'&lt 1 BSPC',label:'LT1 Bks',search:'lt layer tap 1 backspace'},
+    {code:'&lt 2 BSPC',label:'LT2 Bks',search:'lt layer tap 2 backspace'},
+    {code:'&lt 1 TAB',label:'LT1 Tab',search:'lt layer tap 1 tab'},
+    {code:'&lt 2 TAB',label:'LT2 Tab',search:'lt layer tap 2 tab'},
+    {code:'&lt 1 ESC',label:'LT1 Esc',search:'lt layer tap 1 esc escape'},
+    {code:'&lt 2 ESC',label:'LT2 Esc',search:'lt layer tap 2 esc escape'},
+  ],
+  'Bluetooth': [
+    {code:'&bt BT_SEL 0',label:'BT 0',search:'bt bluetooth select 0'},
+    {code:'&bt BT_SEL 1',label:'BT 1',search:'bt bluetooth select 1'},
+    {code:'&bt BT_SEL 2',label:'BT 2',search:'bt bluetooth select 2'},
+    {code:'&bt BT_SEL 3',label:'BT 3',search:'bt bluetooth select 3'},
+    {code:'&bt BT_SEL 4',label:'BT 4',search:'bt bluetooth select 4'},
+    {code:'&bt BT_CLR',label:'BT Clr',search:'bt bluetooth clear'},
+    {code:'&bt BT_CLR_ALL',label:'BT ClrAll',search:'bt bluetooth clear all'},
+    {code:'&bt BT_NXT',label:'BT Next',search:'bt bluetooth next'},
+    {code:'&bt BT_PRV',label:'BT Prev',search:'bt bluetooth prev previous'},
+  ],
+  'Output': [
+    {code:'&out OUT_USB',label:'USB',search:'out output usb wired'},
+    {code:'&out OUT_BLE',label:'BLE',search:'out output ble bluetooth wireless'},
+    {code:'&out OUT_TOG',label:'Out Tog',search:'out output toggle'},
+  ],
+  'System': [
+    {code:'&sys_reset',label:'Reset',search:'sys reset system restart'},
+    {code:'&bootloader',label:'Bootldr',search:'bootloader dfu flash firmware'},
+    {code:'&soft_off',label:'SoftOff',search:'soft off power shutdown'},
+  ],
+  'Mouse': [
+    {code:'&mkp LCLK',label:'LClick',search:'mouse left click lclk'},
+    {code:'&mkp RCLK',label:'RClick',search:'mouse right click rclk'},
+    {code:'&mkp MCLK',label:'MClick',search:'mouse middle click mclk mb3'},
+    {code:'&mkp MB4',label:'MB4',search:'mouse button 4 mb4 back'},
+    {code:'&mkp MB5',label:'MB5',search:'mouse button 5 mb5 forward'},
+    {code:'&mmv MOVE_UP',label:'M Up',search:'mouse move up mmv'},
+    {code:'&mmv MOVE_DOWN',label:'M Down',search:'mouse move down mmv'},
+    {code:'&mmv MOVE_LEFT',label:'M Left',search:'mouse move left mmv'},
+    {code:'&mmv MOVE_RIGHT',label:'M Right',search:'mouse move right mmv'},
+    {code:'&msc SCRL_UP',label:'Scrl Up',search:'mouse scroll up msc'},
+    {code:'&msc SCRL_DOWN',label:'Scrl Dn',search:'mouse scroll down msc'},
+    {code:'&msc SCRL_LEFT',label:'Scrl L',search:'mouse scroll left msc'},
+    {code:'&msc SCRL_RIGHT',label:'Scrl R',search:'mouse scroll right msc'},
+  ],
+  'RGB': [
+    {code:'&rgb_ug RGB_TOG',label:'RGB Tog',search:'rgb toggle'},
+    {code:'&rgb_ug RGB_ON',label:'RGB On',search:'rgb on enable'},
+    {code:'&rgb_ug RGB_OFF',label:'RGB Off',search:'rgb off disable'},
+    {code:'&rgb_ug RGB_BRI',label:'Bri +',search:'rgb brightness increase'},
+    {code:'&rgb_ug RGB_BRD',label:'Bri -',search:'rgb brightness decrease'},
+    {code:'&rgb_ug RGB_HUI',label:'Hue +',search:'rgb hue increase color'},
+    {code:'&rgb_ug RGB_HUD',label:'Hue -',search:'rgb hue decrease color'},
+    {code:'&rgb_ug RGB_SAI',label:'Sat +',search:'rgb saturation increase'},
+    {code:'&rgb_ug RGB_SAD',label:'Sat -',search:'rgb saturation decrease'},
+    {code:'&rgb_ug RGB_SPI',label:'Spd +',search:'rgb speed increase animation'},
+    {code:'&rgb_ug RGB_SPD',label:'Spd -',search:'rgb speed decrease animation'},
+    {code:'&rgb_ug RGB_EFF',label:'Eff +',search:'rgb effect next animation'},
+    {code:'&rgb_ug RGB_EFR',label:'Eff -',search:'rgb effect prev previous reverse'},
+  ],
+  'Special': [
+    {code:'&trans',label:'Trans',search:'trans transparent passthrough'},
+    {code:'&none',label:'None',search:'none nothing block disabled'},
+    {code:'&gresc',label:'Gr Esc',search:'gresc grave escape tilde'},
+    {code:'&caps_word',label:'CapsWord',search:'caps word smart capslock'},
+    {code:'&key_repeat',label:'Repeat',search:'key repeat last'},
+    {code:'&kt LSHFT',label:'KT Shift',search:'kt key toggle shift hold'},
+  ],
+};
+
+// ======================================================================
+// KEY DISPLAY HELPERS
+// ======================================================================
+function getKeyLabel(code) {
+  if (!code) return '';
+  for (const m of state.macros) {
+    if (code === `&${m.name}`) return m.label || m.name;
+  }
+  for (const cat of Object.values(BINDINGS)) {
+    const found = cat.find(b => b.code === code);
+    if (found) return found.label;
+  }
+  if (code === '&trans') return '\u25BD';
+  if (code === '&none') return '\u2205';
+  if (code.startsWith('&kp ')) {
+    const k = code.substring(4);
+    return fmtModCombo(k) || k;
+  }
+  if (code.startsWith('&mo ')) return `MO(${code.substring(4)})`;
+  if (code.startsWith('&tog ')) return `TOG(${code.substring(5)})`;
+  if (code.startsWith('&to ')) return `TO(${code.substring(4)})`;
+  if (code.startsWith('&lt ')) { const p=code.substring(4).split(' '); return `LT${p[0]}`; }
+  if (code.startsWith('&sl ')) return `SL(${code.substring(4)})`;
+  if (code.startsWith('&bt ')) return code.substring(4).replace('BT_','').replace('SEL ','BT');
+  if (code.startsWith('&out ')) return code.substring(5).replace('OUT_','');
+  if (code.startsWith('&mkp ')) return code.substring(5);
+  if (code.startsWith('&mmv ')) return code.substring(5).replace('MOVE_','M');
+  if (code.startsWith('&msc ')) return code.substring(5).replace('SCRL_','S');
+  if (code.startsWith('&rgb_ug ')) return code.substring(8).replace('RGB_','');
+  if (code.startsWith('&sk ')) return `SK ${code.substring(4)}`;
+  if (code.startsWith('&kt ')) return `KT ${code.substring(4)}`;
+  return code.replace('&','');
+}
+
+function fmtModCombo(k) {
+  const m = k.match(/^([LR][GCSA])\((.+)\)$/);
+  if (m) { const inner = fmtModCombo(m[2]) || m[2]; return `${m[1]}(${inner})`; }
+  return null;
+}
+
+function getKeySublabel(code) {
+  if (code && code.startsWith('&lt ')) { const p=code.substring(4).split(' '); return p[1]||''; }
+  return '';
+}
+
+function getKeyType(code) {
+  if (!code) return '';
+  if (code === '&trans') return 'type-trans';
+  if (code === '&none') return 'type-none';
+  for (const m of state.macros) { if (code === `&${m.name}`) return 'type-macro'; }
+  if (/^&(mo|tog|to|lt|sl) /.test(code) || /^&(mo|tog|to|sl)$/.test(code)) return 'type-layer';
+  if (code.startsWith('&bt ') || code.startsWith('&out ')) return 'type-bt';
+  if (/^&(sys_reset|bootloader|soft_off)/.test(code)) return 'type-system';
+  if (/^&(mkp|mmv|msc) /.test(code)) return 'type-mouse';
+  if (code.startsWith('&rgb_ug ')) return 'type-rgb';
+  if (/^&kp C_/.test(code) || code === '&kp GLOBE') return 'type-media';
+  if (/^&kp F\d+$/.test(code)) return 'type-func';
+  if (code.startsWith('&kp ')) {
+    const k = code.substring(4);
+    if (/^(LSHFT|RSHFT|LCTRL|RCTRL|LALT|RALT|LGUI|RGUI|LEFT_GUI|LEFT_ALT|LEFT_SHIFT|RIGHT_SHIFT|LEFT_CONTROL|RIGHT_CONTROL)$/.test(k)) return 'type-mod';
+    if (/^(UP|DOWN|LEFT|RIGHT|HOME|END|PG_UP|PG_DN|UP_ARROW|DOWN_ARROW|LEFT_ARROW|RIGHT_ARROW)$/.test(k)) return 'type-nav';
+    if (/^[LR][GCSA]\(/.test(k)) return 'type-mod';
+    if (/^[A-Z]$/.test(k)) return '';
+  }
+  if (/^&(sk|kt) /.test(code)) return 'type-mod';
+  if (/^&(gresc|caps_word|key_repeat)$/.test(code)) return 'type-special';
+  return 'type-special';
+}
+
+// ======================================================================
+// DEFAULT STATE
+// ======================================================================
+function createEmptyLayer(name, displayName) {
+  return { name, displayName, bindings: new Array(TOTAL_KEYS).fill('&trans'), sensor: 'scroll' };
+}
+
+function initDefaultState() {
+  state.layers = [createEmptyLayer('default','BASE')];
+  state.layers[0].sensor = 'volume';
+  const b = state.layers[0].bindings;
+  // Row 0
+  b[0]='&kp ESC';b[1]='&kp N1';b[2]='&kp N2';b[3]='&kp N3';b[4]='&kp N4';b[5]='&kp N5';
+  b[6]='&kp UP_ARROW';
+  b[7]='&kp N6';b[8]='&kp N7';b[9]='&kp N8';b[10]='&kp N9';b[11]='&kp N0';b[12]='&kp MINUS';
+  // Row 1
+  b[13]='&kp TAB';b[14]='&kp Q';b[15]='&kp W';b[16]='&kp E';b[17]='&kp R';b[18]='&kp T';
+  b[19]='&kp DOWN_ARROW';
+  b[20]='&kp Y';b[21]='&kp U';b[22]='&kp I';b[23]='&kp O';b[24]='&kp P';b[25]='&kp BSLH';
+  // Row 2
+  b[26]='&kp ESC';b[27]='&kp A';b[28]='&kp S';b[29]='&kp D';b[30]='&kp F';b[31]='&kp G';
+  b[32]='&kp LEFT_ARROW';
+  b[33]='&kp H';b[34]='&kp J';b[35]='&kp K';b[36]='&kp L';b[37]='&kp SEMI';b[38]='&kp SQT';
+  // Row 3
+  b[39]='&kp LSHFT';b[40]='&kp Z';b[41]='&kp X';b[42]='&kp C';b[43]='&kp V';b[44]='&kp B';
+  b[45]='&kp RIGHT_ARROW';
+  b[46]='&kp N';b[47]='&kp M';b[48]='&kp COMMA';b[49]='&kp DOT';b[50]='&kp FSLH';b[51]='&kp ENTER';
+  // Row 4 (thumbs)
+  b[52]='&kp C_MUTE';b[53]='&kp LCTRL';b[54]='&kp LALT';b[55]='&kp LGUI';b[56]='&mo 1';b[57]='&kp SPACE';
+  b[58]='&kp ENTER';b[59]='&kp SPACE';b[60]='&kp ENTER';b[61]='&mo 2';b[62]='&kp RSHFT';b[63]='&kp DELETE';
+
+  state.activeLayer = 0;
+  state.selectedKey = null;
+  state.macros = [];
+}
+
+// ======================================================================
+// RENDER
+// ======================================================================
+function render() {
+  renderLayerTabs();
+  renderKeyboard();
+  renderBindingCategories();
+  updateKeyInfoBar();
+  updateToolbar();
+  renderMacroList();
+}
+
+function renderLayerTabs() {
+  const bar = document.getElementById('layerBar');
+  let h = '';
+  state.layers.forEach((layer, i) => {
+    const cls = i === state.activeLayer ? 'active' : '';
+    h += `<button class="layer-tab ${cls}" data-layer="${i}" onclick="selectLayer(${i})"><span class="tab-dot"></span>${esc(layer.displayName || 'Layer '+i)}</button>`;
+  });
+  if (state.layers.length < 6) h += '<button class="add-layer-btn" onclick="addLayer()">+ Layer</button>';
+  bar.innerHTML = h;
+}
+
+function renderKeyboard() {
+  const c = document.getElementById('keyboardContainer');
+  const layer = state.layers[state.activeLayer];
+  if (!layer) return;
+
+  let h = '<div class="keyboard-layout">';
+
+  // LEFT HALF
+  h += '<div class="keyboard-half">';
+  for (let row = 0; row < 4; row++) {
+    h += '<div class="key-row">';
+    for (let col = 0; col < 6; col++) h += keyHtml(row * 13 + col, layer);
+    h += '</div>';
+  }
+  h += '<div class="thumb-cluster thumb-left">';
+  for (let col = 0; col < 6; col++) h += keyHtml(52 + col, layer, 'thumb-key');
+  h += '</div></div>';
+
+  // CENTER COLUMN
+  h += '<div class="keyboard-center">';
+  for (let row = 0; row < 4; row++) h += keyHtml(row * 13 + 6, layer, 'center-key');
+  h += '</div>';
+
+  // RIGHT HALF
+  h += '<div class="keyboard-half">';
+  for (let row = 0; row < 4; row++) {
+    h += '<div class="key-row">';
+    for (let col = 7; col < 13; col++) h += keyHtml(row * 13 + col, layer);
+    h += '</div>';
+  }
+  h += '<div class="thumb-cluster thumb-right">';
+  for (let col = 6; col < 12; col++) h += keyHtml(52 + col, layer, 'thumb-key');
+  h += '</div></div>';
+
+  h += '</div>';
+  c.innerHTML = h;
+}
+
+function keyHtml(idx, layer, extra = '') {
+  const binding = layer.bindings[idx] || '&trans';
+  const label = getKeyLabel(binding);
+  const sub = getKeySublabel(binding);
+  const type = getKeyType(binding);
+  const sel = state.selectedKey === idx ? 'selected' : '';
+  return `<div class="key ${type} ${extra} ${sel}" onclick="selectKey(${idx})" title="${esc(binding)}"><span class="key-label">${esc(label)}</span>${sub ? `<span class="key-sublabel">${esc(sub)}</span>` : ''}</div>`;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderBindingCategories() {
+  const c = document.getElementById('bindingCategories');
+  let h = '';
+  let first = true;
+  for (const [name, items] of Object.entries(BINDINGS)) {
+    const collapsed = first ? '' : 'collapsed';
+    const hidden = first ? '' : 'hidden';
+    first = false;
+    h += `<div class="binding-category" data-category="${name}"><div class="cat-header ${collapsed}" onclick="toggleCat(this)"><span class="arrow">\u25BC</span>${name}<span class="cat-count">${items.length}</span></div><div class="binding-items ${hidden}">`;
+    for (const item of items) {
+      h += `<div class="binding-item" onclick="assignBinding('${escAttr(item.code)}')" title="${esc(item.code)}" data-search="${item.search} ${item.label.toLowerCase()} ${item.code.toLowerCase()}">${esc(item.label)}</div>`;
+    }
+    h += '</div></div>';
+  }
+  c.innerHTML = h;
+}
+
+function escAttr(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function renderMacroList() {
+  const c = document.getElementById('macroList');
+  if (!state.macros.length) { c.innerHTML = '<div style="color:var(--text-muted);font-size:11px;padding:8px">No macros defined</div>'; return; }
+  let h = '';
+  state.macros.forEach((m, i) => {
+    h += `<div class="macro-list-item" onclick="assignMacro(${i})"><span class="macro-name">&amp;${esc(m.name)}</span><span class="macro-actions"><button onclick="event.stopPropagation();editMacro(${i})" title="Edit">\u270E</button><button onclick="event.stopPropagation();deleteMacroByIndex(${i})" title="Delete">\u2717</button></span></div>`;
+  });
+  c.innerHTML = h;
+}
+
+function updateKeyInfoBar() {
+  const bar = document.getElementById('keyInfoBar');
+  if (state.selectedKey === null) {
+    bar.innerHTML = '<span style="color:var(--text-muted)">Click a key to edit its binding</span>';
+    return;
+  }
+  const binding = state.layers[state.activeLayer].bindings[state.selectedKey];
+  const row = state.selectedKey < 52 ? Math.floor(state.selectedKey / 13) : 4;
+  const col = state.selectedKey < 52 ? state.selectedKey % 13 : (state.selectedKey - 52);
+  bar.innerHTML = `<span class="key-pos">Key ${state.selectedKey} (R${row}C${col})</span><span class="key-binding">${esc(binding)}</span><button class="btn btn-sm" style="margin-left:auto" onclick="clearSelectedKey()">Clear</button>`;
+}
+
+function updateToolbar() {
+  const layer = state.layers[state.activeLayer];
+  if (!layer) return;
+  document.getElementById('sensorSelect').value = layer.sensor || 'volume';
+  document.getElementById('layerNameInput').value = layer.displayName || '';
+}
+
+// ======================================================================
+// INTERACTIONS
+// ======================================================================
+function selectLayer(i) { state.activeLayer = i; state.selectedKey = null; render(); }
+
+function addLayer() {
+  if (state.layers.length >= 6) { toast('Maximum 6 layers','error'); return; }
+  const n = state.layers.length;
+  state.layers.push(createEmptyLayer(`layer_${n}`, `Layer ${n}`));
+  state.activeLayer = n;
+  render();
+  toast(`Layer ${n} added`,'success');
+}
+
+function removeActiveLayer() {
+  const i = state.activeLayer;
+  if (state.layers.length <= 1) { toast('Cannot remove the last layer','error'); return; }
+  if (!confirm(`Remove layer "${state.layers[i].displayName}"?`)) return;
+  state.layers.splice(i, 1);
+  if (state.activeLayer >= state.layers.length) state.activeLayer = state.layers.length - 1;
+  state.selectedKey = null;
+  render();
+  toast('Layer removed','info');
+}
+
+function selectKey(idx) { state.selectedKey = idx; renderKeyboard(); updateKeyInfoBar(); }
+
+function clearSelectedKey() {
+  if (state.selectedKey === null) return;
+  state.layers[state.activeLayer].bindings[state.selectedKey] = '&trans';
+  renderKeyboard(); updateKeyInfoBar();
+}
+
+function assignBinding(code) {
+  if (state.selectedKey === null) { toast('Select a key first','info'); return; }
+  code = code.replace(/\\'/g, "'");
+  state.layers[state.activeLayer].bindings[state.selectedKey] = code;
+  // Advance to next key
+  if (state.selectedKey + 1 < TOTAL_KEYS) state.selectedKey++;
+  renderKeyboard(); updateKeyInfoBar();
+}
+
+function assignMacro(idx) {
+  if (state.selectedKey === null) { toast('Select a key first','info'); return; }
+  state.layers[state.activeLayer].bindings[state.selectedKey] = `&${state.macros[idx].name}`;
+  renderKeyboard(); updateKeyInfoBar();
+  toast(`Assigned &${state.macros[idx].name}`,'success');
+}
+
+function handleSensorChange(v) { state.layers[state.activeLayer].sensor = v; }
+function handleLayerNameChange(v) { state.layers[state.activeLayer].displayName = v; renderLayerTabs(); }
+function toggleCat(h) { h.classList.toggle('collapsed'); h.nextElementSibling.classList.toggle('hidden'); }
+
+function filterBindings(q) {
+  q = q.toLowerCase().trim();
+  document.querySelectorAll('#bindingCategories .binding-category').forEach(cat => {
+    let any = false;
+    cat.querySelectorAll('.binding-item').forEach(item => {
+      const vis = !q || (item.dataset.search || '').includes(q);
+      item.style.display = vis ? '' : 'none';
+      if (vis) any = true;
+    });
+    cat.style.display = any ? '' : 'none';
+    if (q && any) {
+      cat.querySelector('.cat-header').classList.remove('collapsed');
+      cat.querySelector('.binding-items').classList.remove('hidden');
+    }
+  });
+}
+
+function switchSidebarTab(panel) {
+  document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.toggle('active', t.dataset.panel === panel));
+  document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${panel}`));
+}
+
+// ======================================================================
+// MOD COMBO BUILDER
+// ======================================================================
+function updateModCombo() {
+  const mods = [];
+  if (document.getElementById('modLG').checked) mods.push('LG');
+  if (document.getElementById('modLC').checked) mods.push('LC');
+  if (document.getElementById('modLA').checked) mods.push('LA');
+  if (document.getElementById('modLS').checked) mods.push('LS');
+  if (document.getElementById('modRG').checked) mods.push('RG');
+  if (document.getElementById('modRC').checked) mods.push('RC');
+  if (document.getElementById('modRA').checked) mods.push('RA');
+  if (document.getElementById('modRS').checked) mods.push('RS');
+  const key = document.getElementById('modComboKey').value.trim().toUpperCase();
+  const preview = document.getElementById('modComboPreview');
+  if (!key || !mods.length) { preview.textContent = 'Select modifiers and a key'; preview.style.color = 'var(--text-muted)'; return; }
+  let combo = key;
+  for (let i = mods.length - 1; i >= 0; i--) combo = `${mods[i]}(${combo})`;
+  preview.textContent = `&kp ${combo}`;
+  preview.style.color = 'var(--accent)';
+}
+
+function applyModCombo() {
+  const p = document.getElementById('modComboPreview').textContent;
+  if (!p.startsWith('&kp ')) { toast('Build a combo first','info'); return; }
+  if (state.selectedKey === null) { toast('Select a key first','info'); return; }
+  state.layers[state.activeLayer].bindings[state.selectedKey] = p;
+  renderKeyboard(); updateKeyInfoBar();
+  toast('Modifier combo applied','success');
+}
+
+function quickModCombo(combo) {
+  if (state.selectedKey === null) { toast('Select a key first','info'); return; }
+  state.layers[state.activeLayer].bindings[state.selectedKey] = `&kp ${combo}`;
+  renderKeyboard(); updateKeyInfoBar();
+  toast(`Applied &kp ${combo}`,'success');
+}
+
+// ======================================================================
+// MACRO EDITOR
+// ======================================================================
+let pendingStepType = null;
+
+function openMacroEditor(idx = -1) {
+  state.editingMacroIndex = idx;
+  state.currentMacroSteps = [];
+  document.getElementById('macroNameInput').value = '';
+  document.getElementById('macroLabelInput').value = '';
+  document.getElementById('macroWaitMs').value = '30';
+  document.getElementById('macroTapMs').value = '40';
+  document.getElementById('macroDeleteBtn').style.display = 'none';
+  document.getElementById('macroModalTitle').textContent = 'New Macro';
+  if (idx >= 0 && state.macros[idx]) {
+    const m = state.macros[idx];
+    document.getElementById('macroNameInput').value = m.name;
+    document.getElementById('macroLabelInput').value = m.label || '';
+    document.getElementById('macroWaitMs').value = m.waitMs || 30;
+    document.getElementById('macroTapMs').value = m.tapMs || 40;
+    state.currentMacroSteps = JSON.parse(JSON.stringify(m.steps || []));
+    document.getElementById('macroDeleteBtn').style.display = '';
+    document.getElementById('macroModalTitle').textContent = 'Edit Macro';
+  }
+  renderMacroSteps(); updateMacroPreview();
+  document.getElementById('macroModal').classList.remove('hidden');
+}
+
+function closeMacroEditor() {
+  document.getElementById('macroModal').classList.add('hidden');
+  state.editingMacroIndex = -1;
+  state.currentMacroSteps = [];
+}
+
+function addMacroStep(type) {
+  if (type === 'pause') {
+    state.currentMacroSteps.push({ type: 'pause' });
+    renderMacroSteps(); updateMacroPreview(); return;
+  }
+  pendingStepType = type;
+  document.getElementById('stepKeyModal').classList.remove('hidden');
+  document.getElementById('stepKeySearch').value = '';
+  renderStepKeyList('');
+}
+
+function closeStepKeyPicker() { document.getElementById('stepKeyModal').classList.add('hidden'); pendingStepType = null; }
+
+function renderStepKeyList(q) {
+  q = q.toLowerCase().trim();
+  const keys = [];
+  ['Letters','Numbers','Modifiers','Symbols','Function Keys','Navigation','Editing'].forEach(cat => {
+    (BINDINGS[cat]||[]).forEach(b => {
+      if (b.code.startsWith('&kp ')) keys.push({ code: b.code.substring(4), label: b.label });
+    });
+  });
+  // Add mouse keys
+  BINDINGS['Mouse'].filter(b => b.code.startsWith('&mkp ')).forEach(b => keys.push({ code: b.code, label: b.label, full: true }));
+
+  let h = '';
+  for (const k of keys) {
+    if (q && !k.code.toLowerCase().includes(q) && !k.label.toLowerCase().includes(q)) continue;
+    const display = k.full ? k.code : k.code;
+    h += `<div class="binding-item" onclick="pickStepKey('${escAttr(k.full ? k.code : k.code)}')">${esc(k.label)} <span style="color:var(--text-muted);font-size:8px">${esc(k.code)}</span></div>`;
+  }
+  document.getElementById('stepKeyList').innerHTML = h;
+}
+
+function filterStepKeys(q) { renderStepKeyList(q); }
+
+function pickStepKey(keyCode) {
+  state.currentMacroSteps.push({ type: pendingStepType, keys: [keyCode] });
+  closeStepKeyPicker();
+  renderMacroSteps(); updateMacroPreview();
+}
+
+function removeMacroStep(i) { state.currentMacroSteps.splice(i, 1); renderMacroSteps(); updateMacroPreview(); }
+
+function renderMacroSteps() {
+  const c = document.getElementById('macroSteps');
+  if (!state.currentMacroSteps.length) { c.innerHTML = '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:10px">No steps added yet</div>'; return; }
+  let h = '';
+  state.currentMacroSteps.forEach((s, i) => {
+    const keys = s.type === 'pause' ? 'pause for release' : (s.keys || []).join(', ');
+    h += `<div class="macro-step"><span class="step-type ${s.type}">${s.type}</span><span class="step-keys">${esc(keys)}</span><button class="remove-step" onclick="removeMacroStep(${i})">&times;</button></div>`;
+  });
+  c.innerHTML = h;
+}
+
+function updateMacroPreview() {
+  const name = document.getElementById('macroNameInput').value || 'my_macro';
+  const label = document.getElementById('macroLabelInput').value || name.toUpperCase();
+  const waitMs = document.getElementById('macroWaitMs').value || '30';
+  const tapMs = document.getElementById('macroTapMs').value || '40';
+  const parts = [];
+  for (const s of state.currentMacroSteps) {
+    if (s.type === 'tap') { parts.push('<&macro_tap>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
+    else if (s.type === 'press') { parts.push('<&macro_press>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
+    else if (s.type === 'release') { parts.push('<&macro_release>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
+    else if (s.type === 'pause') { parts.push('<&macro_pause_for_release>'); }
+  }
+  let code = `${name}: ${name} {\n    compatible = "zmk,behavior-macro";\n    #binding-cells = <0>;\n`;
+  if (parts.length) code += `    bindings\n        = ${parts.join(',\n        ')};\n`;
+  code += `    label = "${label}";\n};`;
+  document.getElementById('macroPreview').textContent = code;
+}
+
+function saveMacro() {
+  const name = document.getElementById('macroNameInput').value.trim();
+  if (!name) { toast('Name required','error'); return; }
+  if (!/^[a-zA-Z_]\w*$/.test(name)) { toast('Invalid C identifier','error'); return; }
+  const label = document.getElementById('macroLabelInput').value.trim() || name.toUpperCase();
+  const macro = { name, label, waitMs: parseInt(document.getElementById('macroWaitMs').value)||30, tapMs: parseInt(document.getElementById('macroTapMs').value)||40, steps: JSON.parse(JSON.stringify(state.currentMacroSteps)) };
+  if (state.editingMacroIndex >= 0) { state.macros[state.editingMacroIndex] = macro; toast('Macro updated','success'); }
+  else { if (state.macros.some(m=>m.name===name)) { toast('Name already exists','error'); return; } state.macros.push(macro); toast('Macro created','success'); }
+  closeMacroEditor(); renderMacroList();
+}
+
+function editMacro(i) { openMacroEditor(i); }
+function deleteMacro() { if (state.editingMacroIndex >= 0) { deleteMacroByIndex(state.editingMacroIndex); closeMacroEditor(); } }
+function deleteMacroByIndex(i) {
+  const name = state.macros[i].name;
+  state.macros.splice(i, 1);
+  for (const l of state.layers) { for (let j = 0; j < l.bindings.length; j++) { if (l.bindings[j] === `&${name}`) l.bindings[j] = '&trans'; } }
+  render(); toast('Macro deleted','info');
+}
+
+function loadMacroTemplate(t) {
+  const templates = {
+    screenshot: { name:'screenshot', label:'SCREENSHOT', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LSHFT','LGUI','LCTRL']},{type:'tap',keys:['N4']},{type:'release',keys:['LSHFT','LGUI','LCTRL']}] },
+    del_word: { name:'del_word', label:'DEL_WORD', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LALT']},{type:'tap',keys:['BACKSPACE']},{type:'release',keys:['LALT']}] },
+    del_line: { name:'del_line', label:'DEL_LINE', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LGUI']},{type:'tap',keys:['BACKSPACE']},{type:'release',keys:['LGUI']}] },
+    lock_screen: { name:'lock_screen', label:'LOCK_SCREEN', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LGUI','LCTRL']},{type:'tap',keys:['Q']},{type:'release',keys:['LGUI','LCTRL']}] },
+    shift_mclk: { name:'SHIFT_MCLK', label:'SHIFT_MCLK', waitMs:30, tapMs:40, steps:[{type:'press',keys:['LEFT_SHIFT']},{type:'press',keys:['&mkp MB3']},{type:'pause'},{type:'release',keys:['LEFT_SHIFT','&mkp MB3']}] },
+  };
+  const tpl = templates[t];
+  if (!tpl) return;
+  if (state.macros.some(m => m.name === tpl.name)) { toast(`"${tpl.name}" already exists`,'info'); return; }
+  state.macros.push(JSON.parse(JSON.stringify(tpl)));
+  renderMacroList();
+  toast(`"${tpl.name}" created`,'success');
+}
+
+// ======================================================================
+// EXPORT
+// ======================================================================
+function exportKeymap() {
+  let o = '';
+  o += '#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200\n';
+  o += '#define ZMK_POINTING_DEFAULT_SCRL_VAL 25\n\n';
+  o += '#include <input/processors.dtsi>\n';
+  o += '#include <zephyr/dt-bindings/input/input-event-codes.h>\n';
+  o += '#include <behaviors.dtsi>\n';
+  o += '#include <dt-bindings/zmk/bt.h>\n';
+  o += '#include <dt-bindings/zmk/keys.h>\n';
+  o += '#include <dt-bindings/zmk/outputs.h>\n';
+  o += '#include <dt-bindings/zmk/pointing.h>\n';
+  o += '#include <dt-bindings/zmk/rgb.h>\n\n';
+  o += '&mmv_input_listener { input-processors = <&zip_xy_scaler 2 1>; };\n\n';
+  o += '&msc_input_listener { input-processors = <&zip_scroll_scaler 2 1>; };\n\n';
+  o += '&msc {\n    acceleration-exponent = <1>;\n    time-to-max-speed-ms = <100>;\n    delay-ms = <0>;\n};\n\n';
+  o += '&mmv {\n    time-to-max-speed-ms = <500>;\n    acceleration-exponent = <1>;\n    trigger-period-ms = <16>;\n};\n\n';
+  o += '&soft_off { hold-time-ms = <2000>; };\n\n';
+  o += '/ {\n';
+  o += '    scroll_encoder: scroll_encoder {\n        compatible = "zmk,behavior-sensor-rotate";\n        #sensor-binding-cells = <0>;\n        bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;\n        tap-ms = <100>;\n    };\n\n';
+  o += '    behaviors {\n    };\n\n';
+  o += '    combos {\n        compatible = "zmk,combos";\n\n        softoff {\n            bindings = <&soft_off>;\n            key-positions = <14 28 40>;\n        };\n    };\n\n';
+
+  // Macros
+  o += '    macros {\n';
+  for (const m of state.macros) o += genMacroCode(m);
+  o += '    };\n\n';
+
+  // Keymap
+  o += '    keymap {\n        compatible = "zmk,keymap";\n\n';
+  for (let li = 0; li < state.layers.length; li++) {
+    const layer = state.layers[li];
+    const lname = layer.name || `layer_${li}`;
+    o += `        ${lname} {\n            bindings = <\n`;
+    let idx = 0;
+    for (let row = 0; row < 5; row++) {
+      const rowLen = ROW_LENGTHS[row];
+      const binds = [];
+      for (let c = 0; c < rowLen; c++) { binds.push(layer.bindings[idx] || '&trans'); idx++; }
+      o += fmtRow(binds, row);
+    }
+    o += '            >;\n\n';
+    if (layer.sensor === 'scroll') o += '            sensor-bindings = <&scroll_encoder>;\n';
+    else o += '            sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOL_DN>;\n';
+    o += `            display-name = "${layer.displayName || lname}";\n`;
+    o += '        };\n\n';
+  }
+  o += '    };\n};\n';
+
+  // Download
+  const blob = new Blob([o], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'eyelash_sofle.keymap';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('Keymap exported!','success');
+}
+
+function fmtRow(binds, row) {
+  // Format binding rows to match original keymap style
+  // Find max width per column for nice alignment
+  if (row < 4) {
+    const left = binds.slice(0, 6);
+    const center = binds[6];
+    const right = binds.slice(7, 13);
+    // Pad left bindings
+    const maxL = Math.max(...left.map(b => b.length));
+    const maxR = Math.max(...right.map(b => b.length));
+    const lp = left.map(b => b.padEnd(maxL)).join('  ');
+    const rp = right.map(b => b.padEnd(maxR)).join('  ');
+    return `${lp}    ${center.padEnd(maxL)}   ${rp}\n`;
+  } else {
+    const left = binds.slice(0, 6);
+    const right = binds.slice(6, 12);
+    const maxL = Math.max(...left.map(b => b.length));
+    const maxR = Math.max(...right.map(b => b.length));
+    const lp = left.map(b => b.padEnd(maxL)).join('  ');
+    const rp = right.map(b => b.padEnd(maxR)).join('  ');
+    return `${lp}    ${rp}\n`;
+  }
+}
+
+function genMacroCode(m) {
+  let c = `        ${m.name}: ${m.name} {\n`;
+  c += `            compatible = "zmk,behavior-macro";\n`;
+  c += `            #binding-cells = <0>;\n`;
+  const parts = [];
+  for (const s of m.steps) {
+    if (s.type === 'tap') { parts.push('<&macro_tap>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
+    else if (s.type === 'press') { parts.push('<&macro_press>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
+    else if (s.type === 'release') { parts.push('<&macro_release>'); (s.keys||[]).forEach(k => parts.push(k.startsWith('&') ? `<${k}>` : `<&kp ${k}>`)); }
+    else if (s.type === 'pause') { parts.push('<&macro_pause_for_release>'); }
+  }
+  if (parts.length) c += `            bindings\n                = ${parts.join(',\n                ')};\n`;
+  else c += `            bindings = <>;\n`;
+  c += `            label = "${m.label || m.name.toUpperCase()}";\n`;
+  c += `        };\n\n`;
+  return c;
+}
+
+// ======================================================================
+// IMPORT
+// ======================================================================
+function importKeymap() { document.getElementById('fileInput').click(); }
+
+function handleFileImport(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = function(ev) {
+    try { parseKeymap(ev.target.result); toast('Keymap imported!','success'); }
+    catch (err) { toast('Parse error: ' + err.message,'error'); console.error(err); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+}
+
+function parseKeymap(text) {
+  state.layers = [];
+  state.macros = [];
+  state.activeLayer = 0;
+  state.selectedKey = null;
+
+  // Parse macros
+  const macrosMatch = text.match(/macros\s*\{([\s\S]*?)\n\s{4}\};/);
+  if (macrosMatch) {
+    const macrosBlock = macrosMatch[1];
+    const mRe = /(\w+)\s*:\s*\w+\s*\{([\s\S]*?)\};/g;
+    let mm;
+    while ((mm = mRe.exec(macrosBlock)) !== null) {
+      const name = mm[1];
+      const body = mm[2];
+      const labelM = body.match(/label\s*=\s*"([^"]+)"/);
+      const label = labelM ? labelM[1] : name.toUpperCase();
+      const waitM = body.match(/wait-ms\s*=\s*<(\d+)>/);
+      const tapM = body.match(/tap-ms\s*=\s*<(\d+)>/);
+      const steps = [];
+      const bindM = body.match(/bindings[\s\S]*?=\s*([\s\S]*?);/);
+      if (bindM) {
+        const blocks = [];
+        const bRe = /<([^>]+)>/g;
+        let bm;
+        while ((bm = bRe.exec(bindM[1])) !== null) blocks.push(bm[1].trim());
+        let curType = null, curKeys = [];
+        for (const block of blocks) {
+          if (block === '&macro_tap') { if (curType && curKeys.length) steps.push({type:curType,keys:[...curKeys]}); curType='tap'; curKeys=[]; }
+          else if (block === '&macro_press') { if (curType && curKeys.length) steps.push({type:curType,keys:[...curKeys]}); curType='press'; curKeys=[]; }
+          else if (block === '&macro_release') { if (curType && curKeys.length) steps.push({type:curType,keys:[...curKeys]}); curType='release'; curKeys=[]; }
+          else if (block === '&macro_pause_for_release') { if (curType && curKeys.length) { steps.push({type:curType,keys:[...curKeys]}); curKeys=[]; } steps.push({type:'pause'}); curType=null; }
+          else {
+            const keyParts = block.split(/\s+&/).map((p,i) => i===0 ? p : '&'+p);
+            for (const kp of keyParts) {
+              const t = kp.trim();
+              if (t.startsWith('&kp ')) curKeys.push(t.substring(4));
+              else if (t.startsWith('&mkp ')) curKeys.push(t);
+              else curKeys.push(t);
+            }
+          }
+        }
+        if (curType && curKeys.length) steps.push({type:curType,keys:[...curKeys]});
+      }
+      state.macros.push({ name, label, waitMs: waitM?parseInt(waitM[1]):30, tapMs: tapM?parseInt(tapM[1]):40, steps });
+    }
+  }
+
+  // Parse layers
+  const keymapMatch = text.match(/keymap\s*\{[\s\S]*?compatible\s*=\s*"zmk,keymap";\s*([\s\S]*?)\n\s{4}\};/);
+  if (!keymapMatch) throw new Error('No keymap block found');
+  const keymapBlock = keymapMatch[1];
+  const layerRe = /(\w+)\s*\{([\s\S]*?)\n\s{8}\};/g;
+  let lm;
+  while ((lm = layerRe.exec(keymapBlock)) !== null) {
+    const lname = lm[1];
+    const lbody = lm[2];
+    const displayM = lbody.match(/display-name\s*=\s*"([^"]+)"/);
+    const sensorM = lbody.match(/sensor-bindings\s*=\s*<([^>]+)>/);
+    let sensor = 'volume';
+    if (sensorM && sensorM[1].includes('scroll_encoder')) sensor = 'scroll';
+    const bindM = lbody.match(/bindings\s*=\s*<([\s\S]*?)>/);
+    if (!bindM) continue;
+    const bindings = parseBindings(bindM[1].trim());
+    while (bindings.length < TOTAL_KEYS) bindings.push('&trans');
+    state.layers.push({ name: lname, displayName: displayM?displayM[1]:lname, bindings, sensor });
+  }
+  if (!state.layers.length) throw new Error('No layers found');
+  render();
+}
+
+function parseBindings(str) {
+  const bindings = [];
+  const tokens = str.trim().split(/\s+/);
+  let i = 0;
+  while (i < tokens.length) {
+    const t = tokens[i];
+    if (!t.startsWith('&')) { i++; continue; }
+    const beh = t.substring(1);
+
+    if (['trans','none','gresc','caps_word','key_repeat','sys_reset','bootloader','soft_off'].includes(beh)) {
+      bindings.push(t); i++;
+    } else if (['kp','sk','kt'].includes(beh)) {
+      if (i+1<tokens.length && !tokens[i+1].startsWith('&')) { bindings.push(`${t} ${tokens[i+1]}`); i+=2; }
+      else { bindings.push(t); i++; }
+    } else if (['mo','tog','to','sl'].includes(beh)) {
+      if (i+1<tokens.length && !tokens[i+1].startsWith('&')) { bindings.push(`${t} ${tokens[i+1]}`); i+=2; }
+      else { bindings.push(t); i++; }
+    } else if (beh === 'lt') {
+      if (i+2<tokens.length && !tokens[i+1].startsWith('&') && !tokens[i+2].startsWith('&')) { bindings.push(`${t} ${tokens[i+1]} ${tokens[i+2]}`); i+=3; }
+      else if (i+1<tokens.length && !tokens[i+1].startsWith('&')) { bindings.push(`${t} ${tokens[i+1]}`); i+=2; }
+      else { bindings.push(t); i++; }
+    } else if (beh === 'bt') {
+      if (i+1<tokens.length && !tokens[i+1].startsWith('&')) {
+        if (tokens[i+1]==='BT_SEL' && i+2<tokens.length && !tokens[i+2].startsWith('&')) { bindings.push(`${t} ${tokens[i+1]} ${tokens[i+2]}`); i+=3; }
+        else { bindings.push(`${t} ${tokens[i+1]}`); i+=2; }
+      } else { bindings.push(t); i++; }
+    } else if (['out','mkp','mmv','msc','rgb_ug'].includes(beh)) {
+      if (i+1<tokens.length && !tokens[i+1].startsWith('&')) { bindings.push(`${t} ${tokens[i+1]}`); i+=2; }
+      else { bindings.push(t); i++; }
+    } else {
+      // Check if macro
+      if (state.macros.some(m=>m.name===beh)) { bindings.push(t); i++; }
+      else {
+        // Unknown - consume non-& tokens
+        let b = t; let j = i+1;
+        while (j < tokens.length && !tokens[j].startsWith('&')) { b += ' ' + tokens[j]; j++; }
+        bindings.push(b); i = j;
+      }
+    }
+  }
+  return bindings;
+}
+
+// ======================================================================
+// TOAST
+// ======================================================================
+function toast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 3000);
+}
+
+// ======================================================================
+// AUTO-SAVE
+// ======================================================================
+function autoSave() {
+  try { localStorage.setItem('zmk-ke-state', JSON.stringify({ layers: state.layers, macros: state.macros })); } catch(e) {}
+}
+setInterval(autoSave, 5000);
+
+// ======================================================================
+// KEYBOARD SHORTCUTS
+// ======================================================================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (!document.getElementById('stepKeyModal').classList.contains('hidden')) closeStepKeyPicker();
+    else if (!document.getElementById('macroModal').classList.contains('hidden')) closeMacroEditor();
+    else { state.selectedKey = null; renderKeyboard(); updateKeyInfoBar(); }
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); exportKeymap(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'o') { e.preventDefault(); importKeymap(); }
+});
+
+// ======================================================================
+// INIT
+// ======================================================================
+function init() {
+  initDefaultState();
+  // Try to restore saved state
+  try {
+    const saved = localStorage.getItem('zmk-ke-state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.layers && parsed.layers.length) {
+        state.layers = parsed.layers;
+        state.macros = parsed.macros || [];
+        state.activeLayer = 0;
+        state.selectedKey = null;
+      }
+    }
+  } catch(e) { console.warn('Failed to restore state:', e); }
+  render();
+}
+init();
+</script>
+</body>
+</html>
