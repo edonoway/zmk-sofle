@@ -67,28 +67,40 @@
         screenshot: screenshot {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <>;
+            bindings
+                = <&macro_press &kp LSHFT &kp LGUI &kp LCTRL>,
+                <&macro_tap &kp N4>,
+                <&macro_release &kp LSHFT &kp LGUI &kp LCTRL>;
             label = "SCREENSHOT";
         };
 
         lock_screen: lock_screen {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <>;
+            bindings
+                = <&macro_press &kp LGUI &kp LCTRL>,
+                <&macro_tap &kp Q>,
+                <&macro_release &kp LGUI &kp LCTRL>;
             label = "LOCK_SCREEN";
         };
 
         del_word: del_word {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <>;
+            bindings
+                = <&macro_press &kp LALT>,
+                <&macro_tap &kp BACKSPACE>,
+                <&macro_release &kp LALT>;
             label = "DEL_WORD";
         };
 
         del_line: del_line {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <>;
+            bindings
+                = <&macro_press &kp LGUI>,
+                <&macro_tap &kp BACKSPACE>,
+                <&macro_release &kp LGUI>;
             label = "DEL_LINE";
         };
 
